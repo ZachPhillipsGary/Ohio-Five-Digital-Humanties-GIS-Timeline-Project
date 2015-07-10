@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <script src="./js/arrayincludes.js"></script>
+    <link rel="stylesheet" href="./bower_components/angular-multi-select/isteven-multi-select.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.6.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="./css/style.css" type="text/css">
+    <link rel="stylesheet" href="./css/bootstrap.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.6.0/build/ol.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="./bower_components/openlayers3/build/ol.js"></script>
+    <script src="./bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="./dist/angular-openlayers-directive.js"></script>
+    <script src="./bower_components/angular-multi-select/isteven-multi-select.js"></script>
+    <script src="./bower_components/moment/min/moment.min.js"></script>
+    <script src="./bower_components/vis/dist/vis.min.js"></script>
+    <script src="./bower_components/angular-visjs/angular-vis.js"></script>
+    <link rel="stylesheet" href="./bower_components/openlayers3/build/ol.css" />
+    <script src='./js/client.js'></script>
+</head>
+
+<body ng-app="mapApp">
+    <div ng-controller="mainCtrl">
+        <!-- Control Panel Modal -->
+        <div id="adminCtrl" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" data-container="body" data-toggle="popover" data-placement="left" data-content='' data-original-title="" title="">Control Panel</h4>
+
+
+                    </div>
+                    <div class="modal-body">
+                        <!-- begin admin area -->
+                        <ul class="nav nav-tabs">
+                            <li class=""><a href="#home" data-toggle="tab" aria-expanded="false">Create</a></li>
+                            <li class="active"><a href="#profile" data-toggle="tab" aria-expanded="true">About this timeline</a></li>
+
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+      Share <span class="caret"></span>
+    </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#dropdown1" data-toggle="tab">Action</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#dropdown2" data-toggle="tab">Another action</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div id="myTabContent" class="tab-content">
+                            <div class="tab-pane fade" id="home">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item">
+                                        <h4 class="list-group-item-heading"> <i class="fa fa-files-o"></i> Duplicate this timeline</h4>
+                                        <p class="list-group-item-text">Saves a copy of the timeline and all associated data to your google drive account.</p>
+                                    </a>
+                                    <a href="#" data-toggle="modal" data-target="#createModal" class="list-group-item">
+                                        <h4 class="list-group-item-heading"><i class="fa fa-plus-square-o"></i> Create your own</h4>
+                                        <p class="list-group-item-text">Create an entirely new map.</p>
+                                    </a>
+                                    <hr> Made with <i class="fa fa-heart"></i> at <a class="wooster" href="//www.wooster.edu">W</a>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade active in" id="profile">
+                                <div class="form-group">
+                                    <label class="control-label" for="disabledInput">Data URL</label>
+                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
+                                    <label class="control-label" for="disabledInput">Layer I</label>
+                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
+                                    <label class="control-label" for="disabledInput">Layer II</label>
+                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
+                                    <label class="control-label" for="disabledInput">Layer III</label>
+                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
+                                </div>
+                                <hr>
+                                <a href="#" class="edit btn btn-primary btn-xs" disabled>add layer</a><a href="#" class="edit btn btn-default btn-xs" disabled>add data</a>
+                            </div>
+                            <div class="tab-pane fade" id="dropdown1">
+                                <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</p>
+                            </div>
+                            <div class="tab-pane fade" id="dropdown2">
+                                <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end admin zone -->
+        <!-- help modal -->
+        <div id="help" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title">About / help</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>One fine body…</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end help modal -->
+        <!-- begin create modal -->
+        <div id="createModal" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title">Create a Map</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-dismissible alert-info">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            <strong>Ready to create your own map?</strong> Simply login to your <a href="#" class="alert-link">google drive</a> account and select spreadsheet to begin!
+                        </div>
+
+                        <a href="#" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- nav bar -->
+        <div class="btn-toolbar">
+
+            <div class="btn-group btn-group-justified">
+                <a href="#" class="btn btn-default"><i class="fa fa-arrow-left"></i></a>
+                <a href="#" class="btn btn-default" data-toggle="modal" data-target="#adminCtrl">Menu</a>
+                <a href="#" class="btn btn-default"><i class="fa fa-arrow-right"></i></a>
+
+            </div>
+            <!-- filter selector -->
+            <div id="filtersComponent">
+                <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="icon name" item-label="icon name maker" tick-property="ticked" data-toggle="dropdown">
+                </isteven-multi-select>
+            </div>
+            <!-- openlayers map  -->
+            <openlayers width="100%" height="{{ mapHeight }}">
+                <!-- load all data markers into map -->
+                <ol-marker ng-repeat="item in markers" lat="{{ item.lat }}" lon="{{ item.lng }}" message="{{ item.content }}."></ol-marker>
+                <!-- load all data layers into map -->
+                <ol-layer ng-repeat="item in layers" source-type="{{ item.dataType }}" source-url="{{ item.dataURL }}"></ol-layer>
+
+            </openlayers>
+            <!-- vis-timeline -->
+            <vis-timeline data="data" options="options" events="xevents"></vis-timeline>
+
+
+        </div>
+
+</body>
+
+</html>
