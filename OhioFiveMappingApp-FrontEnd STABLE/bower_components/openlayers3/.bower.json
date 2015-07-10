@@ -1,0 +1,13 @@
+{
+  "name": "openlayers3",
+  "homepage": "https://github.com/tombatossals/ol3-compiled",
+  "_release": "abaef33dcc",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "abaef33dccf0dd34e0420259ece976bfcf5caf47"
+  },
+  "_source": "https://github.com/tombatossals/ol3-compiled.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/tombatossals/ol3-compiled.git"
+}

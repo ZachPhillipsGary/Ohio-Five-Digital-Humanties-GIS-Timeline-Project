@@ -1,0 +1,29 @@
+[
+{
+"id": 2,
+"lat": 40.8092,
+"lng": 81.9372,
+"groups": ["groupA","groupC"],
+"content": "<p>awesome text here</p>",
+"start": {"year":2014, "month":3, "day":17 },
+"end":  {"year":2015, "month":3, "day":17 }
+},
+{
+"id": 3,
+"lat": 41.8092,
+"lng": 81.9372,
+"groups": ["groupA","groupC"],
+"content": "<p>awesome text here</p>",
+"start": {"year":2014, "month":3, "day":17 },
+"end":  {"year":2015, "month":3, "day":17 }
+},
+{
+"id": 4,
+"lat": 40.8092,
+"lng": 81.9372,
+"groups": ["groupC"],
+"content": "<p>awesome text here</p>",
+"start": {"year":2004, "month":2, "day":17 },
+"end":  {"year":2015, "month":3, "day":17 }
+}
+]

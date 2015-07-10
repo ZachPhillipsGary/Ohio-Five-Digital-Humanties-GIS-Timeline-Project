@@ -10,7 +10,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
 
     //dataSet -- stores all results from ajax request
     $scope.dataSet = [];
-
     /*
     dataSet object Template
     defines a single point on the map
@@ -33,8 +32,34 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
     $scope.loadMarkers = function(url) {
     $http.get(url).success(function(data) {
         if (data) {
+          console.log(data);
+          for (var i = 0; i < data.length; i++) {
+              $scope.dataSet.push(data[i]);
+              var rowGroups = data[i].groups;
+              for (var k = 0; k < rowGroups.length; k++) {
+                if ($scope.visGroups.length > 0) {
+                    if (!($scope.visGroups.contains(rowGroups[k]))) {
+                      var group = {
+                        "id": $scope.visGroups.length+1,
+                        "content": rowGroups[k],
+                        "value": rowGroups[k]
+                      };
+                      console.log(group);
+                      $scope.visGroups.push(group);
+                    }
+                } else {
+                  var group = {
+                    "id": $scope.visGroups.length+1,
+                    "content": rowGroups[k],
+                    "value": rowGroups[k]
+                  };
+                  console.log(group);
+                  $scope.visGroups.push(group);
+                }
+                }
 
-        }
+              }
+          }
         $scope.initTimeline($scope.visGroups, $scope.visItems);
     }).error(function(data){ reportError('Could not load data from source:'); });
 
@@ -42,6 +67,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
     $scope.initTimeline = function(Groups, Items) {
         //vis datasets for groups and marker items
         var groups = VisDataSet(Groups);
+        console.log(Groups);
         var items = VisDataSet(Items);
 
         //markers from googleSheets
@@ -94,16 +120,19 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
             // padding: 5,
             showCurrentTime: true,
             showMajorLabels: true,
-            showMinorLabels: true
+            showMinorLabels: true,
                 // type: 'box', // dot | point
                 // zoomMin: 1000,
                 // zoomMax: 1000 * 60 * 60 * 24 * 30 * 12 * 10,
-                // groupOrder: 'content'
+            groupOrder: 'content'
         };
       };
         //starting point for map
         var now = moment().minutes(0).seconds(0).milliseconds(0);
-
+        $scope.data = {
+            groups: groups,
+            items: items
+        };
         var sampleData = function() {
             return VisDataSet([{
                 id: 1,
@@ -144,12 +173,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
             }]);
         };
 
-
-
-        $scope.data = {
-            groups: groups,
-            items: items
-        };
         var orderedContent = 'content';
         var orderedSorting = function(a, b) {
             // option groupOrder can be a property name or a sort function
@@ -195,4 +218,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
             contextmenu: $scope.rightClick
         };
     };
+    $scope.loadMarkers('myjson.json');
+
 }]);
