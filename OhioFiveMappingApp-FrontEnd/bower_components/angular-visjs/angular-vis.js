@@ -48,8 +48,16 @@ angular.module('ngVis', [])
                         timeline.destroy();
                     }
 
+
                     // Create the timeline object
                     timeline = new vis.Timeline(element[0], scope.data.items, scope.data.groups, scope.options);
+                    //broadcast the currently visible timeline object
+                    function getitems() {
+                    scope.$emit('visTimelineChange', { objects: timeline.getVisibleItems() } );
+                    //console.log(timeline.getVisibleItems());
+                    }
+                    //timeline
+                    timeline.on('rangechange',getitems);
 
                     // Attach an event handler if defined
                     angular.forEach(scope.events, function (callback, event) {

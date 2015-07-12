@@ -1,18 +1,20 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
 var mapApp = angular.module('mapApp', ['ngVis', 'openlayers-directive', 'isteven-multi-select']);
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', function(VisDataSet, $scope, $http, $location, $timeout) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout) {
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
 
         $("body").prepend(msg);
 
     }
+    function uniqueVisObjects(array) {
+
+    }
     /* toDate({}) converts object to js date */
     function toDate(obj) {
-        if (obj)
-            return Date(obj.year, obj.month, obj.day);
-        else
-            return Date();
+      console.log(obj.year, obj.month, obj.day);
+      console.log('Date',new Date(obj.year, obj.month, obj.day));
+            return String(new Date(obj.year, obj.month, obj.day));
     }
     //center map on wooster if nothing else is selected
     angular.extend($scope, {
@@ -23,14 +25,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
             centerUrlHash: true
         }
     });
-    //update map center and zoom from URL
-    var promise;
-    $scope.$on("centerUrlHash", function(event, centerHash) {
-        $location.search({
-            c: centerHash
-        });
-    });
-    //map markers
+//arkers
     $scope.olMarkers = [];
     //map layers
     $scope.olLayers = [];
@@ -57,8 +52,30 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
     */
     //groups are a many (items) to one (group) relationship
     $scope.visGroups = [];
+    $scope.visItems = new vis.DataSet({});
+    //update map center and zoom from URL
+    var promise;
+    $scope.$on("centerUrlHash", function(event, centerHash) {
+        $location.search({
+            c: centerHash
+        });
+    });
+    $scope.$on('visTimelineChange', function(event, args) {
+      console.log($scope.olMarkers);
+      var visibleItems = args.objects; // get visible items from directive event
+      for (var i = 0; i < $scope.olMarkers.length; i++) {
+      //  $scope.ol
+        if (  !(visibleItems.contains($scope.olMarkers[i].id)) ) {
+          console.log(i,':',$scope.olMarkers[i].id);
+          $scope.olMarkers.splice(i, 1);
+          $scope.$apply(); //update map
+        }
+
+      }
+      });
+      
     //placeholder until dataLoader factory is ready
-    $scope.visItems = [];
+
     /* load TimeMap, loads the .json file containing references to map layers and markers */
     $scope.loadTimeMap = function(url) {
         $http.get(url).success(function(data) {
@@ -72,7 +89,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
         });
     };
     $scope.format_dataSet = function(set) {
-        var data;
+        var data; //dataset to format
         if (set < $scope.dataSet.length) {
             data = $scope.dataSet[set];
         } else {
@@ -81,11 +98,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
         console.log(data);
         for (var i = 0; i < data.length; i++) {
             $scope.dataSet.push(data[i]);
+            var groupNames = []
             var rowGroups = data[i].groups;
             console.log(rowGroups);
             for (var k = 0; k < rowGroups.length; k++) {
                 if ($scope.visGroups.length > 0) {
                     if (!($scope.visGroups.contains(rowGroups[k]))) {
+                      if (!(groupNames.contains(rowGroups[k]))) {
                         var group = {
                             "id": $scope.visGroups.length + 1,
                             "content": rowGroups[k],
@@ -93,6 +112,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
                         };
                         console.log(group);
                         $scope.visGroups.push(group);
+                      }
                     }
                 } else {
                     var group = {
@@ -147,7 +167,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
             align: 'center', // left | right (String)
             autoResize: false, // false (Boolean)
             editable: false,
-            selectable: true,
+            selectable: false,
             // start: null,
             // end: null,
             // height: null,
@@ -171,25 +191,40 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
         };
         //create visItems
         for (var i = 0; i < $scope.dataSet.length; i++) {
+
             var dataSetrow = $scope.dataSet[i];
             for (var k = 0; k < dataSetrow.length; k++) {
-              console.log(dataSetrow[k]);
-              if (dataSetrow[k]) {
-                var innerObj = {
-                  //"id"
-                };
-              }
+                if (dataSetrow[k]) {
+                    var idVal = 1;
+                    if (k > 0) {
+                        idVal = k + 1;
+                    }
+                    var visDatRow = [];
+                    var visObj = {
+                        id: idVal,
+                        olId:$scope.dataSet[k].id,
+                        content: dataSetrow[k].content,
+                        type: "range",
+                        group: i+1,
+                        start: String(toDate(dataSetrow[k].start)),
+                        end: String(toDate(dataSetrow[k].end))
+                    };
+                    console.log(visObj["start"])
+                    visDatRow.push(visObj);
+                    $scope.visItems.add(visDatRow);
+                }
             }
         }
 
-        console.log('visItems',$scope.visItems);
+        console.log('visItems', $scope.visItems);
 
+        console.log('visGroups', $scope.visGroups);
 
         //starting point for map
         var now = moment().minutes(0).seconds(0).milliseconds(0);
         $scope.data = {
-            'groups': VisDataSet($scope.visGroups.unique()),
-            'items': VisDataSet($scope.visItems)
+            'groups': VisDataSet($scope.visGroups),
+            'items': $scope.visItems
         };
         var orderedContent = 'content';
         var orderedSorting = function(a, b) {
@@ -203,9 +238,18 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
 
         $scope.options = angular.extend(options, {
             groupOrder: orderedContent,
-            editable: true
+            editable: false
         })
 
+        $scope.$on("rangechange", function(period) {
+          console.log("Range changing", period);
+
+        });
+
+
+       $scope.onRangeChange = function(period) {
+         console.log('rng:',period);
+       }
         $scope.onSelect = function(items) {
             // debugger;
             console.log(items);
@@ -228,7 +272,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
 
         $scope.events = {
             rangechange: $scope.onRangeChange,
-            rangechanged: $scope.onRangeChanged,
+            rangechanged: $scope.onRangeChange,
             onload: $scope.onLoaded,
             select: $scope.onSelect,
             click: $scope.onClick,
@@ -236,6 +280,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', func
             contextmenu: $scope.rightClick
         };
     };
+    $scope.graphEvents = {
+         rangechange: $scope.onRangeChange,
+         rangechanged: $scope.onRangeChange,
+         onload: $scope.onLoaded
+     };
     //startup functions
     $scope.loadTimeMap("myjson.json");
 }]);
