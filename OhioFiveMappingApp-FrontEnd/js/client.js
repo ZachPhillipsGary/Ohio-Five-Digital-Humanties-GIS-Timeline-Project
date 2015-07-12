@@ -1,17 +1,48 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
 var mapApp = angular.module('mapApp', ['ngVis', 'openlayers-directive', 'isteven-multi-select']);
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisDataSet, $scope, $http, $location, $timeout) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http','$location', function(VisDataSet, $scope, $http, $location, $timeout) {
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
 
-      $( "body" ).prepend( msg );
+        $("body").prepend(msg);
 
     }
-
-    //dataSet -- stores all results from ajax request
+    /* toDate({}) converts object to js date */
+    function toDate(obj) {
+        if (obj)
+            return Date(obj.year, obj.month, obj.day);
+        else
+            return Date();
+    }
+    //center map on wooster if nothing else is selected
+    angular.extend($scope, {
+        wooster: {
+            lat: 40.8092,
+            lon: 81.9372,
+            zoom: 4,
+            centerUrlHash: true
+        }
+    });
+    //update map center and zoom from URL
+    var promise;
+    $scope.$on("centerUrlHash", function(event, centerHash) {
+        $location.search({
+            c: centerHash
+        });
+    });
+    //map markers
+    $scope.olMarkers = [];
+    //map layers
+    $scope.olLayers = [];
+    //.json datafile for map
     $scope.dataSet = [];
+    //list of filters for timemap
+    $scope.filters = [];
+    //selected filters from filter dropdown
+    $scope.selectedFilters = [];
+    //global data array
     /*
-    dataSet object Template
+    marker object Template
     defines a single point on the map
     {
     id: 42,
@@ -28,63 +59,75 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
     $scope.visGroups = [];
     //placeholder until dataLoader factory is ready
     $scope.visItems = [];
-
-    $scope.loadMarkers = function(url) {
-    $http.get(url).success(function(data) {
-        if (data) {
-          console.log(data);
-          for (var i = 0; i < data.length; i++) {
-              $scope.dataSet.push(data[i]);
-              var rowGroups = data[i].groups;
-              for (var k = 0; k < rowGroups.length; k++) {
+    /* load TimeMap, loads the .json file containing references to map layers and markers */
+    $scope.loadTimeMap = function(url) {
+        $http.get(url).success(function(data) {
+            if (data) {
+                $scope.dataSet.push(data); //allows for more than one dataset
+                //format and load the lastest element in dataSet
+                $scope.format_dataSet($scope.dataSet.length - 1);
+            }
+        }).error(function(data) {
+            reportError('Could not load data from source:' + String(url));
+        });
+    };
+    $scope.format_dataSet = function(set) {
+        var data;
+        if (set < $scope.dataSet.length) {
+            data = $scope.dataSet[set];
+        } else {
+            reportError("invalid dataSet, could not format");
+        }
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            $scope.dataSet.push(data[i]);
+            var rowGroups = data[i].groups;
+            console.log(rowGroups);
+            for (var k = 0; k < rowGroups.length; k++) {
                 if ($scope.visGroups.length > 0) {
                     if (!($scope.visGroups.contains(rowGroups[k]))) {
-                      var group = {
-                        "id": $scope.visGroups.length+1,
-                        "content": rowGroups[k],
-                        "value": rowGroups[k]
-                      };
-                      console.log(group);
-                      $scope.visGroups.push(group);
+                        var group = {
+                            "id": $scope.visGroups.length + 1,
+                            "content": rowGroups[k],
+                            "value": rowGroups[k]
+                        };
+                        console.log(group);
+                        $scope.visGroups.push(group);
                     }
                 } else {
-                  var group = {
-                    "id": $scope.visGroups.length+1,
-                    "content": rowGroups[k],
-                    "value": rowGroups[k]
-                  };
-                  console.log(group);
-                  $scope.visGroups.push(group);
+                    var group = {
+                        "id": $scope.visGroups.length + 1,
+                        "content": rowGroups[k],
+                        "value": rowGroups[k]
+                    };
+                    console.log(group);
+                    $scope.visGroups.push(group);
                 }
-                }
-
-              }
-          }
-        $scope.initTimeline($scope.visGroups, $scope.visItems);
-    }).error(function(data){ reportError('Could not load data from source:'); });
-
-
-    $scope.initTimeline = function(Groups, Items) {
-        //vis datasets for groups and marker items
-        var groups = VisDataSet(Groups);
-        console.log(Groups);
-        var items = VisDataSet(Items);
-
-        //markers from googleSheets
-        $scope.markers = [];
-        //static layers
-        $scope.layers = [];
-        //set map height dynamically
-        $scope.mapHeight = '500px';
-
-        //list of filters for timemap
-        $scope.filters = [];
-        //selected filters from filter dropdown
-        $scope.selectedFilters = [];
+            }
+            //add markers to ol map
+            if (i === 0) {
+                var markerId = 0;
+            } else {
+                var markerId = i + 1;
+            }
+            //verify item is a marker and create ol3 marker object
+            if (data[i].kind === "marker") {
+                var marker = {
+                    "id": markerId,
+                    "lat": data[i].lat,
+                    "log": data[i].lng,
+                    "name": data[i].content
+                };
+                $scope.olMarkers.push(marker);
+            }
+        }
+        //TODO: move to end of load loop when we bring google data
+        $scope.initTimeline();
+    };
 
 
+    $scope.initTimeline = function() {
         $scope.logs = {};
-
         $scope.defaults = {
             orientation: ['top', 'bottom'],
             autoResize: [true, false],
@@ -96,7 +139,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
             stack: [true, false],
             moveable: [true, false],
             zoomable: [true, false],
-            selectable: [true, false],
+            selectable: [false, false],
             editable: [false, false]
         };
 
@@ -121,58 +164,33 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
             showCurrentTime: true,
             showMajorLabels: true,
             showMinorLabels: true,
-                // type: 'box', // dot | point
-                // zoomMin: 1000,
-                // zoomMax: 1000 * 60 * 60 * 24 * 30 * 12 * 10,
+            // type: 'box', // dot | point
+            // zoomMin: 1000,
+            // zoomMax: 1000 * 60 * 60 * 24 * 30 * 12 * 10,
             groupOrder: 'content'
         };
-      };
+        //create visItems
+        for (var i = 0; i < $scope.dataSet.length; i++) {
+            var dataSetrow = $scope.dataSet[i];
+            for (var k = 0; k < dataSetrow.length; k++) {
+              console.log(dataSetrow[k]);
+              if (dataSetrow[k]) {
+                var innerObj = {
+                  //"id"
+                };
+              }
+            }
+        }
+
+        console.log('visItems',$scope.visItems);
+
+
         //starting point for map
         var now = moment().minutes(0).seconds(0).milliseconds(0);
         $scope.data = {
-            groups: groups,
-            items: items
+            'groups': VisDataSet($scope.visGroups.unique()),
+            'items': VisDataSet($scope.visItems)
         };
-        var sampleData = function() {
-            return VisDataSet([{
-                id: 1,
-                content: '<i class="fi-flag"></i> item 1',
-                start: moment().add('days', 1),
-                className: 'magenta'
-            }, {
-                id: 2,
-                content: '<a href="http://visjs.org" target="_blank">visjs.org</a>',
-                start: moment().add('days', 2)
-            }, {
-                id: 3,
-                content: 'item 3',
-                start: moment().add('days', -2)
-            }, {
-                id: 4,
-                content: 'item 4',
-                start: moment().add('days', 1),
-                end: moment().add('days', 3),
-                type: 'range'
-            }, {
-                id: 7,
-                content: '<i class="fi-anchor"></i> item 7',
-                start: moment().add('days', -3),
-                end: moment().add('days', -2),
-                type: 'range',
-                className: 'orange'
-            }, {
-                id: 5,
-                content: 'item 5',
-                start: moment().add('days', -1),
-                type: 'point'
-            }, {
-                id: 6,
-                content: 'item 6',
-                start: moment().add('days', 4),
-                type: 'point'
-            }]);
-        };
-
         var orderedContent = 'content';
         var orderedSorting = function(a, b) {
             // option groupOrder can be a property name or a sort function
@@ -218,6 +236,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', function(VisData
             contextmenu: $scope.rightClick
         };
     };
-    $scope.loadMarkers('myjson.json');
-
+    //startup functions
+    $scope.loadTimeMap("myjson.json");
 }]);
