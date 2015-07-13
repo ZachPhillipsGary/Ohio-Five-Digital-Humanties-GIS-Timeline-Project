@@ -66,16 +66,32 @@
                request.execute(function(resp) {
                  appendPre('Files:');
                  var files = resp.items;
+                 var fileSet = [];
                  if (files && files.length > 0) {
                    for (var i = 0; i < files.length; i++) {
                      var file = files[i];
+                     var fileObject = {
+                       "fileName":String(file.title),
+                       "id": file.id,
+                       "type": file.mimeType,
+                       "export":file.exportLinks,
+                       "use": false
+                     };
+
+                     fileSet.push(fileObject);
                      appendPre(file.title + ' (' + file.id + ')');
                    }
+                   console.log('adding data to angular');
+                   var scope = angular.element($("#mainCtrl")).scope();
+                      scope.$apply(function(){
+                          scope.googleData = fileSet;
+                      })
                  } else {
                    appendPre('No files found.');
                  }
                });
            }
+
 
            /**
             * Append a pre element to the body containing the given message
@@ -88,3 +104,10 @@
              var textContent = document.createTextNode(message + '\n');
              pre.appendChild(textContent);
            }
+
+
+
+           mapApp.service('getGoogleData', function () {
+               this.getData = function () { return returnFilelist();};
+
+           });

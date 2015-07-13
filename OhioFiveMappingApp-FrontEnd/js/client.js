@@ -1,12 +1,22 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-var mapApp = angular.module('mapApp', ['ngVis', 'openlayers-directive', 'isteven-multi-select']);
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location','getGoogleData', function(VisDataSet, $scope, $http, $location, $timeout, getGoogleData) {
+
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
 
         $("body").prepend(msg);
 
     }
+
+    function getURLparams( name, url ) {
+      if (!url) url = location.href
+      name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+      var regexS = "[\\?&]"+name+"=([^&#]*)";
+      var regex = new RegExp( regexS );
+      var results = regex.exec( url );
+      return results == null ? null : results[1];
+    }
+
 
     function uniqueVisObjects(array) {
 
@@ -54,6 +64,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     //groups are a many (items) to one (group) relationship
     $scope.visGroups = [];
     $scope.visItems = new vis.DataSet({});
+
+
+
     //update map center and zoom from URL
     var promise;
     $scope.$on("centerUrlHash", function(event, centerHash) {
@@ -62,6 +75,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
+      console.log($scope.googleData);
         var visibleItems = args.objects; // get visible items from directive broadcast
         //reload all data if we've previously removed something
         if (visibleItems.length > $scope.olMarkers.length) {
@@ -101,8 +115,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         }
     });
 
-    //placeholder until dataLoader factory is ready
+    $scope.addLayer = function (gmapItem) {
+      console.log('input:',gmapItem);
+    };
 
+    //placeholder until dataLoader factory is ready
     /* load TimeMap, loads the .json file containing references to map layers and markers */
     $scope.loadTimeMap = function(url) {
         $http.get(url).success(function(data) {
@@ -116,6 +133,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     };
     $scope.format_dataSet = function(set) {
+      //console.log(returnFilelist());
         var data; //dataset to format
         if (set <= $scope.dataSet.length) {
             data = $scope.dataSet[set];
@@ -248,11 +266,18 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         console.log('visGroups', $scope.visGroups);
 
         //starting point for map
-        var now = moment().minutes(0).seconds(0).milliseconds(0);
+        //if
         $scope.data = {
             'groups': VisDataSet($scope.visGroups),
             'items': $scope.visItems
         };
+        var startTime = getURLparams(location.search,'t');
+        if (startTime.length === 0) {
+          now = moment().minutes(0).seconds(0).milliseconds(0);
+        } else {
+          var now = moment(startTime,"MM-DD-YYYY");
+        }
+
         var orderedContent = 'content';
         var orderedSorting = function(a, b) {
             // option groupOrder can be a property name or a sort function
@@ -307,6 +332,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         onload: $scope.onLoaded
     };
     //startup functions
-
+$selectedData = [];
     $scope.loadTimeMap("myjson.json");
 }]);
