@@ -7,6 +7,8 @@ ngVisApp.controller('appController', function ($scope, $location, $timeout, VisD
 
     $scope.logs = {};
 
+    $scope.customLayer = 'false';
+    
     $scope.defaults = {
         orientation: ['top', 'bottom'],
         autoResize: [true, false],

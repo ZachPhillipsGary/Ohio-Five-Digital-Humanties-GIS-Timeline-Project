@@ -7,14 +7,15 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $("body").prepend(msg);
 
     }
+
     function uniqueVisObjects(array) {
 
     }
     /* toDate({}) converts object to js date */
     function toDate(obj) {
-      console.log(obj.year, obj.month, obj.day);
-      console.log('Date',new Date(obj.year, obj.month, obj.day));
-            return String(new Date(obj.year, obj.month, obj.day));
+        console.log(obj.year, obj.month, obj.day);
+        console.log('Date', new Date(obj.year, obj.month, obj.aday));
+        return String(new Date(obj.year, obj.month, obj.day));
     }
     //center map on wooster if nothing else is selected
     angular.extend($scope, {
@@ -25,7 +26,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             centerUrlHash: true
         }
     });
-//arkers
+    //arkers
     $scope.olMarkers = [];
     //map layers
     $scope.olLayers = [];
@@ -61,19 +62,45 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
-      console.log($scope.olMarkers);
-      var visibleItems = args.objects; // get visible items from directive event
-      for (var i = 0; i < $scope.olMarkers.length; i++) {
-      //  $scope.ol
-        if (  !(visibleItems.contains($scope.olMarkers[i].id)) ) {
-          console.log(i,':',$scope.olMarkers[i].id);
-          $scope.olMarkers.splice(i, 1);
-          $scope.$apply(); //update map
-        }
+        var visibleItems = args.objects; // get visible items from directive broadcast
+        //reload all data if we've previously removed something
+        if (visibleItems.length > $scope.olMarkers.length) {
+            $scope.olMarkers = [];
+            for (var k = 0; k < $scope.dataSet.length; k++) {
+              //add markers to ol map
+              if (k === 0) {
+                  var markerId = 0;
+              } else {
+                  var markerId = k + 1;
+              }
+              //verify item is a marker and create ol3 marker object
+              if ($scope.dataSet[k].kind === "marker") {
+                  var marker = {
+                      "id": markerId,
+                      "lat": $scope.dataSet[k].lat,
+                      "log": $scope.dataSet[k].lng,
+                      "name": $scope.dataSet[k].content
+                  };
+                  $scope.olMarkers.push(marker);
+              }
+                $scope.format_dataSet[k];
+                console.log($scope.olMarkers.length);
+                $scope.$apply(); //update map
 
-      }
-      });
-      
+            }
+        }
+        console.log($scope.olMarkers);
+        for (var i = 0; i < $scope.olMarkers.length; i++) {
+            //  $scope.ol
+            if (!(visibleItems.contains($scope.olMarkers[i].id))) {
+                console.log(i, ':', $scope.olMarkers[i].id);
+                $scope.olMarkers.splice(i, 1);
+                $scope.$apply(); //update map
+            }
+
+        }
+    });
+
     //placeholder until dataLoader factory is ready
 
     /* load TimeMap, loads the .json file containing references to map layers and markers */
@@ -90,7 +117,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     };
     $scope.format_dataSet = function(set) {
         var data; //dataset to format
-        if (set < $scope.dataSet.length) {
+        if (set <= $scope.dataSet.length) {
             data = $scope.dataSet[set];
         } else {
             reportError("invalid dataSet, could not format");
@@ -104,15 +131,15 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             for (var k = 0; k < rowGroups.length; k++) {
                 if ($scope.visGroups.length > 0) {
                     if (!($scope.visGroups.contains(rowGroups[k]))) {
-                      if (!(groupNames.contains(rowGroups[k]))) {
-                        var group = {
-                            "id": $scope.visGroups.length + 1,
-                            "content": rowGroups[k],
-                            "value": rowGroups[k]
-                        };
-                        console.log(group);
-                        $scope.visGroups.push(group);
-                      }
+                        if (!(groupNames.contains(rowGroups[k]))) {
+                            var group = {
+                                "id": $scope.visGroups.length + 1,
+                                "content": rowGroups[k],
+                                "value": rowGroups[k]
+                            };
+                            console.log(group);
+                            $scope.visGroups.push(group);
+                        }
                     }
                 } else {
                     var group = {
@@ -202,10 +229,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                     var visDatRow = [];
                     var visObj = {
                         id: idVal,
-                        olId:$scope.dataSet[k].id,
+                        olId: $scope.dataSet[k].id,
                         content: dataSetrow[k].content,
                         type: "range",
-                        group: i+1,
+                        group: i + 1,
                         start: String(toDate(dataSetrow[k].start)),
                         end: String(toDate(dataSetrow[k].end))
                     };
@@ -241,15 +268,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             editable: false
         })
 
-        $scope.$on("rangechange", function(period) {
-          console.log("Range changing", period);
-
-        });
-
-
-       $scope.onRangeChange = function(period) {
-         console.log('rng:',period);
-       }
+        $scope.onRangeChange = function(period) {
+            console.log('rng:', period);
+        }
         $scope.onSelect = function(items) {
             // debugger;
             console.log(items);
@@ -281,10 +302,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         };
     };
     $scope.graphEvents = {
-         rangechange: $scope.onRangeChange,
-         rangechanged: $scope.onRangeChange,
-         onload: $scope.onLoaded
-     };
+        rangechange: $scope.onRangeChange,
+        rangechanged: $scope.onRangeChange,
+        onload: $scope.onLoaded
+    };
     //startup functions
+
     $scope.loadTimeMap("myjson.json");
 }]);

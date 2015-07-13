@@ -157,10 +157,10 @@
                 <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="icon name" item-label="icon name maker" tick-property="ticked" data-toggle="dropdown">
                 </isteven-multi-select>
             </div>
-            <!-- openlayers map lat="{{ initState.lat }}" custom-layers="true" zoom="{ initState.zoom }}" lon="{ initState.log }}"  -->
+            <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"  -->
             <openlayers ol-center="wooster" width="100%" height="470px">
                 <!-- load all data markers into map -->
-                <ol-marker ng-repeat="item in olMarkers" message="item.name" lat="item.lat" lon="item.lng"></ol-marker>
+                <ol-marker ng-repeat="item in olMarkers" lat="item.lat" lon="item.lng" custom-layers="customLayer"></ol-marker>
                 <!-- load all data layers into map
                 <ol-layer ng-repeat="item in olLayers" source-type="item.dataType" source-url="{{ item.dataURL }}"></ol-layer>-->
             </openlayers>

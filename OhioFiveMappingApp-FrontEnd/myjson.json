@@ -21,6 +21,16 @@
 },
 {
 "kind": "marker",
+"id": 11,
+"lat": 40.8092,
+"lng": 81.9372,
+"groups": ["groupA","groupC"],
+"content": "<p>wooster</p>",
+"start": {"year":1900, "month":3, "day":17 },
+"end":  {"year":1930, "month":3, "day":17 }
+},
+{
+"kind": "marker",
 "id": 7,
 "lat": 10.8092,
 "lng": 81.9372,
