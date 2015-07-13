@@ -23,6 +23,8 @@
     <script src="./bower_components/angular-visjs/angular-vis.js"></script>
     <link rel="stylesheet" href="./bower_components/openlayers3/build/ol.css" />
     <script src='./js/client.js'></script>
+    <script type="text/javascript" src="./js/auth.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
 </head>
 
 <body ng-app="mapApp">
@@ -69,21 +71,19 @@
                                 </div>
                             </div>
                             <div class="tab-pane fade active in" id="profile">
-                                <div class="form-group">
-                                    <label class="control-label" for="disabledInput">Data URL</label>
-                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
-                                    <label class="control-label" for="disabledInput">Layer I</label>
-                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
-                                    <label class="control-label" for="disabledInput">Layer II</label>
-                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
-                                    <label class="control-label" for="disabledInput">Layer III</label>
-                                    <input class="form-control" id="disabledInput" type="text" placeholder="Disabled input here..." disabled="">
-                                </div>
+
+                              <div id="authorize-div" style="display: none">
+                                    <span>Authorize access to Drive API</span>
+                                    <!--Button for the user to click to initiate auth sequence -->
+                                    <button id="authorize-button" onclick="handleAuthClick(event)">
+                                      Authorize
+                                    </button>
+                                  </div>
+                                  <pre id="output"></pre>
                                 <hr>
                                 <a href="#" class="edit btn btn-primary btn-xs" disabled>add layer</a><a href="#" class="edit btn btn-default btn-xs" disabled>add data</a>
                             </div>
                             <div class="tab-pane fade" id="dropdown1">
-                                <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork.</p>
                             </div>
                             <div class="tab-pane fade" id="dropdown2">
                                 <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
@@ -156,6 +156,7 @@
             <div id="filtersComponent">
                 <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="icon name" item-label="icon name maker" tick-property="ticked" data-toggle="dropdown">
                 </isteven-multi-select>
+
             </div>
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"  -->
             <openlayers ol-center="wooster" width="100%" height="470px">
@@ -164,9 +165,9 @@
                 <!-- load all data layers into map
                 <ol-layer ng-repeat="item in olLayers" source-type="item.dataType" source-url="{{ item.dataURL }}"></ol-layer>-->
             </openlayers>
-            <hr>
             <!-- vis-timeline -->
             <vis-timeline data="data" options="options" events="xevents"></vis-timeline>
+
 
 
         </div>
