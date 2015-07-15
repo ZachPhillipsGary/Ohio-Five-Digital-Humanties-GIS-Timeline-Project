@@ -119,6 +119,29 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location','get
       console.log('input:',gmapItem);
     };
 
+    $scope.loadGoogleMapsData = function(url) {
+          var urlString = "https://spreadsheets.google.com/feeds/list/"+url+"/od6/public/values?alt=json";
+          $http.jsonp(urlString).success(function(data) {
+              if (data) {
+                for (var i = 0; i < data.feed.entry.length; i++) {
+                console.log(data.feed.entry[0]['gsx$longitude']['$t']);
+
+}
+                }
+        });
+        };
+        $scope.loadSheet = function(url) {
+          //https://spreadsheets.google.com/feeds/list/{KEY }/od6/public/values?alt=json
+            $http.get(url).success(function(data) {
+                if (data) {
+                    $scope.dataSet.push(data); //allows for more than one dataset
+                    //format and load the lastest element in dataSet
+                    $scope.format_dataSet($scope.dataSet.length - 1);
+                }
+            }).error(function(data) {
+                reportError('Could not load data from source:' + String(url));
+            });
+        };
     //placeholder until dataLoader factory is ready
     /* load TimeMap, loads the .json file containing references to map layers and markers */
     $scope.loadTimeMap = function(url) {
@@ -334,4 +357,5 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location','get
     //startup functions
 $selectedData = [];
     $scope.loadTimeMap("myjson.json");
+    $scope.loadGoogleMapsData('1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o/');
 }]);
