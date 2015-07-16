@@ -2,37 +2,39 @@
     font-family: wooFont;
     src: url('Wooster.ttf');
 }
-
+.vis-background {
+  display:none;
+}
 .wooster {
     font-family: wooFont;
     color:#000;
 }
 
 .map {
-        min-height: 100%; 
+        min-height: 100%;
         width: 100%;
 }
 html, body {
     		height: 100%;
     		margin: 0;
-}      	
+}
 nav {
     position: fixed;
     top:0px;
     z-index:9999;
-}        
+}
 #centered {
     padding-left: 50%;
 }
 button.close {
  display:none;
-    
+
 }
 #filtersComponent {
  position: fixed;
  top:0px;
  left:0px;
- z-index: 999;   
+ z-index: 999;
 }
 #timelineContainer {
     position: fixed;

@@ -73,6 +73,7 @@ angular.module('openlayers-directive', ['ngSanitize']).directive('openlayers', [
                 var map = new ol.Map({
                     target: element[0],
                     controls: controls,
+                    
                     interactions: interactions,
                     renderer: defaults.renderer,
                     view: view
