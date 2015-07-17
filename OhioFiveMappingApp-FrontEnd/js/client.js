@@ -46,13 +46,14 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
      */
     function insertData(rows, location) {
         console.log('data', rows);
-        var exportList = [];
+        $scope.customLayers = false; //set to false until we find a layer element
+        var exportList = []; //return a copy of the date for tag generation
         if (rows.length > 0) {
             for (var i = 0; i < rows.length; i++) {
                 //insert row data into dataSet
                 var currentRow = rows[i];
-                console.log(currentRow);
                 if (currentRow.gsx$type.$t === 'marker') {
+                  console.log('marker:',currentRow);
                     var dataItem = {
                         kind: String(currentRow.gsx$type.$t),
                         lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
@@ -64,9 +65,15 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
                         polyGroup: currentRow.gsx$format.$t || 'none' // not in a polygon, do not group
 
                     };
+                    console.log('marker system:',dataItem);
                     exportList.push(dataItem);
-                } else if (currentRow.gsx$type.$t === 'layer') {
+                    $scope.olLayers.push(dataItem);
+                    console.log('marker system:',$scope.olLayers);
 
+                } else if (currentRow.gsx$type.$t === 'layer') {
+                    //turn on custom layers if we have any
+                    console.log(currentRow.gsx$type.$t);
+                    $scope.customLayers = true;
                     var dataItem = {
                         kind: String(currentRow.gsx$type.$t),
                         lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
@@ -81,7 +88,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
                     exportList.push(dataItem);
 
                 } else if (currentRow.gsx$type.$t === 'basemap') {
-
+                  console.log(currentRow.gsx$type.$t);
                 } else {
                     invalidRow(i, 'Could not find data type');
                 }
@@ -94,34 +101,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         console.log('EXPORT:', exportList);
         return exportList;
     }
-    /*
-    createOlObject ()
-    - k: int value for assigning ids
-    - object: map row object
-    */
-    function createOlObject(k, object) {
-      for (var k = 0; k < $scope.dataSet.length; k++) {
-        //add markers to ol map
-        if (k === 0) {
-            var markerId = 0;
-        } else {
-            var markerId = k + 1;
-        }
-        var Olobject;
-        //verify item is a marker and create ol3 marker object
-        if (object.kind === "marker") {
-            Olobject = {
-                "id": markerId,
-                "lat": $scope.dataSet[k].lat,
-                "log": $scope.dataSet[k].lng,
-                "name": $scope.dataSet[k].content
-            };
-        } else if (object.kind === "basemap") {
-
-        }
-
-    }
-}
     function uniqueVisObjects(array) {
 
     }
@@ -168,8 +147,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         //reload all data if we've previously removed something, this al
         if (visibleItems.length > $scope.olMarkers.length) {
             $scope.olMarkers = []; //reset markers
-
-              $scope.olMarkers.push(marker);
+        //    var markers =
+            //  $scope.olMarkers.push(markers);
                 $scope.format_dataSet[k];
                 console.log($scope.olMarkers.length);
                 $scope.$apply(); //update map
@@ -187,13 +166,33 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         }
     });
 
+    $scope.format_dataSet = function(set) {
+        //console.log(returnFilelist());
+        var data; //dataset to format
+        if (set <= $scope.dataSet.length) {
+            data = $scope.dataSet[set];
+        } else {
+            reportError("invalid dataSet, could not format");
+        }
 
+        $scope.initTimeline();
+    };
+
+/*
+loadGoogleMapsData()
+preconditions: url {string} = Google Sheet Key
+post: $scope.olMarkers and $scope.olLayers populated with data
+map init invoked
+*/
     $scope.loadGoogleMapsData = function(url) {
         var urlString = "https://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
         $http.get(urlString).success(function(data) {
             console.log(data);
             var rows = data.feed.entry; //rows from dataset
-            insertData(rows);
+            $scope.dataSet = insertData(rows);
+            console.log('Data',$scope.dataSet);
+            $scope.initTimeline();
+
         }).error(function(data) {
             console.log(data);
             reportError('Could not load data from source:' + String(data));
@@ -204,232 +203,177 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         $scope.loadGoogleMapsData(gmapItem.id);
     };
 
-    $scope.loadSheet = function(url) {
-        //https://spreadsheets.google.com/feeds/list/{KEY }/od6/public/values?alt=json
-        $http.get(url).success(function(data) {
-            if (data) {
-                $scope.dataSet.push(data); //allows for more than one dataset
-                //format and load the lastest element in dataSet
-                $scope.format_dataSet($scope.dataSet.length - 1);
-            }
-        }).error(function(data) {
-            reportError('Could not load data from source:' + String(url));
-        });
-    };
-    //placeholder until dataLoader factory is ready
-    /* load TimeMap, loads the .json file containing references to map layers and markers */
-    $scope.loadTimeMap = function(url) {
-        $http.get(url).success(function(data) {
-            if (data) {
-                $scope.dataSet.push(data); //allows for more than one dataset
-                //format and load the lastest element in dataSet
-                $scope.format_dataSet($scope.dataSet.length - 1);
-            }
-        }).error(function(data) {
-            reportError('Could not load data from source:' + String(url));
-        });
-    };
-    $scope.format_dataSet = function(set) {
-        //console.log(returnFilelist());
-        var data; //dataset to format
-        if (set <= $scope.dataSet.length) {
-            data = $scope.dataSet[set];
-        } else {
-            reportError("invalid dataSet, could not format");
-        }
-        console.log(data);
-        for (var i = 0; i < data.length; i++) {
-            $scope.dataSet.push(data[i]);
-            var groupNames = []
-            var rowGroups = data[i].groups;
-            console.log(rowGroups);
-            for (var k = 0; k < rowGroups.length; k++) {
-                if ($scope.visGroups.length > 0) {
-                    if (!($scope.visGroups.contains(rowGroups[k]))) {
-                        if (!(groupNames.contains(rowGroups[k]))) {
-                            var group = {
-                                "id": $scope.visGroups.length + 1,
-                                "content": rowGroups[k],
-                                "value": rowGroups[k]
-                            };
-                            console.log(group);
-                            $scope.visGroups.push(group);
-                        }
-                    }
-                } else {
-                    var group = {
-                        "id": $scope.visGroups.length + 1,
-                        "content": rowGroups[k],
-                        "value": rowGroups[k]
-                    };
-                    console.log(group);
-                    $scope.visGroups.push(group);
-                }
-            }
-            //add markers to ol map
-            if (i === 0) {
-                var markerId = 0;
-            } else {
-                var markerId = i + 1;
-            }
-            //verify item is a marker and create ol3 marker object
-            if (data[i].kind === "marker") {
-                var marker = {
-                    "id": markerId,
-                    "lat": data[i].lat,
-                    "log": data[i].lng,
-                    "name": data[i].content
-                };
-                $scope.olMarkers.push(marker);
-            }
-        }
-        //TODO: move to end of load loop when we bring google data
-        $scope.initTimeline();
-    };
 
-
-    $scope.initTimeline = function() {
-        $scope.logs = {};
-        $scope.defaults = {
-            orientation: ['top', 'bottom'],
-            autoResize: [false, false],
-            showCurrentTime: [true, false],
-            showCustomTime: [true, false],
-            showMajorLabels: [true, false],
-            showMinorLabels: [true, false],
-            align: ['left', 'center', 'right'],
-            stack: [true, false],
-            moveable: [true, false],
-            zoomable: [true, false],
-            selectable: [false, false],
-            editable: [false, false]
-        };
-
-        var options = {
-            align: 'center', // left | right (String)
-            autoResize: false, // false (Boolean)
-            editable: false,
-            selectable: false,
-            // start: null,
-            // end: null,
-            height: '100px',
-            // width: '100%',
-            margin: {
-                axis: 2,
-                item: 2
-            },
-            // min: null,
-            // max: null,
-            // maxHeight: null,
-            orientation: 'bottom',
-            // padding: 5,
-            showCurrentTime: true,
-            showMajorLabels: true,
-            showMinorLabels: true,
-            // type: 'box', // dot | point
-            // zoomMin: 1000,
-            // zoomMax: 1000 * 60 * 60 * 24 * 30 * 12 * 10,
-            groupOrder: 'content'
-        };
-        //create visItems
-        for (var i = 0; i < $scope.dataSet.length; i++) {
-
-            var dataSetrow = $scope.dataSet[i];
-            for (var k = 0; k < dataSetrow.length; k++) {
-                if (dataSetrow[k]) {
-                    var idVal = 1;
-                    if (k > 0) {
-                        idVal = k + 1;
-                    }
-                    var visDatRow = [];
-                    var visObj = {
-                        id: idVal,
-                        olId: $scope.dataSet[k].id,
-                        content: dataSetrow[k].content,
-                        type: "range",
-                        group: i + 1,
-                        start: String(toDate(dataSetrow[k].start)),
-                        end: String(toDate(dataSetrow[k].end))
-                    };
-                    console.log(visObj["start"])
-                    visDatRow.push(visObj);
-                    $scope.visItems.add(visDatRow);
-                }
-            }
-        }
-
-        console.log('visItems', $scope.visItems);
-
-        console.log('visGroups', $scope.visGroups);
-
-        //starting point for map
-        //if
-        $scope.data = {
-            'groups': VisDataSet($scope.visGroups),
-            'items': $scope.visItems
-        };
-        var startTime = getURLparams(location.search, 't');
-        if (startTime.length === 0) {
-            now = moment().minutes(0).seconds(0).milliseconds(0);
-        } else {
-            var now = moment(startTime, "MM-DD-YYYY");
-        }
-
-        var orderedContent = 'content';
-        var orderedSorting = function(a, b) {
-            // option groupOrder can be a property name or a sort function
-            // the sort function must compare two groups and return a value
-            //     > 0 when a > b
-            //     < 0 when a < b
-            //       0 when a == b
-            return a.value - b.value;
-        };
-
-        $scope.options = angular.extend(options, {
-            groupOrder: orderedContent,
-            editable: false
-        })
-
-        $scope.onRangeChange = function(period) {
-            console.log('rng:', period);
-        }
-        $scope.onSelect = function(items) {
-            // debugger;
-            console.log(items);
-        };
-
-        $scope.onClick = function(props) {
-            //debugger;
-            console.log(items);
-        };
-
-        $scope.onDoubleClick = function(props) {
-            // debugger;
-            console.log('DoubleClick');
-        };
-
-        $scope.rightClick = function(props) {
-            //alert('Right click!');
-            props.event.preventDefault();
-        };
-
-        $scope.events = {
-            rangechange: $scope.onRangeChange,
-            rangechanged: $scope.onRangeChange,
-            onload: $scope.onLoaded,
-            select: $scope.onSelect,
-            click: $scope.onClick,
-            doubleClick: $scope.onDoubleClick,
-            contextmenu: $scope.rightClick
-        };
-    };
     $scope.graphEvents = {
         rangechange: $scope.onRangeChange,
         rangechanged: $scope.onRangeChange,
         onload: $scope.onLoaded
     };
+
+$scope.initTimeline = function() {
+
+
+      $scope.logs = {};
+
+      $scope.customLayer = 'false';
+
+      $scope.defaults = {
+          orientation: ['top', 'bottom'],
+          autoResize: [true, false],
+          showCurrentTime: [true, false],
+          showCustomTime: [true, false],
+          showMajorLabels: [true, false],
+          showMinorLabels: [true, false],
+          align: ['left', 'center', 'right'],
+          stack: [true, false],
+
+          moveable: [true, false],
+          zoomable: [true, false],
+          selectable: [true, false],
+          editable: [true, false]
+      };
+
+      var options = {
+          align: 'center', // left | right (String)
+          autoResize: true, // false (Boolean)
+          editable: true,
+          selectable: true,
+          // start: null,
+          // end: null,
+          // height: null,
+          // width: '100%',
+          // margin: {
+          //   axis: 20,
+          //   item: 10
+          // },
+          // min: null,
+          // max: null,
+          // maxHeight: null,
+          orientation: 'bottom',
+          // padding: 5,
+          showCurrentTime: true,
+          showCustomTime: true,
+          showMajorLabels: true,
+          showMinorLabels: true
+          // type: 'box', // dot | point
+          // zoomMin: 1000,
+          // zoomMax: 1000 * 60 * 60 * 24 * 30 * 12 * 10,
+          // groupOrder: 'content'
+      };
+
+      var now = moment().minutes(0).seconds(0).milliseconds(0);
+
+      var sampleData = function () {
+          return VisDataSet([
+              {
+                  id: 1,
+                  content: '<i class="fi-flag"></i> item 1',
+                  start: moment().add('days', 1),
+                  className: 'magenta'
+              },
+              {
+                  id: 2,
+                  content: '<a href="http://visjs.org" target="_blank">visjs.org</a>',
+                  start: moment().add('days', 2)
+              },
+              {
+                  id: 3,
+                  content: 'item 3',
+                  start: moment().add('days', -2)
+              },
+              {
+                  id: 4,
+                  content: 'item 4',
+                  start: moment().add('days', 1),
+                  end: moment().add('days', 3),
+                  type: 'range'
+              },
+              {
+                  id: 7,
+                  content: '<i class="fi-anchor"></i> item 7',
+                  start: moment().add('days', -3),
+                  end: moment().add('days', -2),
+                  type: 'range',
+                  className: 'orange'
+              },
+              {
+                  id: 5,
+                  content: 'item 5',
+                  start: moment().add('days', -1),
+                  type: 'point'
+              },
+              {
+                  id: 6,
+                  content: 'item 6',
+                  start: moment().add('days', 4),
+                  type: 'point'
+              }
+          ]);
+      };
+
+      var groups = VisDataSet([
+              {id: 0, content: 'First', value: 1},
+              {id: 1, content: 'Third', value: 3},
+              {id: 2, content: 'Second', value: 2}
+          ]);
+      var items = VisDataSet([
+              {id: 0, group: 0, content: 'item 0', start: new Date(2014, 3, 17), end: new Date(2014, 3, 21)},
+              {id: 1, group: 0, content: 'item 1', start: new Date(2014, 3, 19), end: new Date(2014, 3, 20)},
+              {id: 2, group: 1, content: 'item 2', start: new Date(2014, 3, 16), end: new Date(2014, 3, 24)},
+              {id: 3, group: 1, content: 'item 3', start: new Date(2014, 3, 23), end: new Date(2014, 3, 24)},
+              {id: 4, group: 1, content: 'item 4', start: new Date(2014, 3, 22), end: new Date(2014, 3, 26)},
+              {id: 5, group: 2, content: 'item 5', start: new Date(2014, 3, 24), end: new Date(2014, 3, 27)}
+          ]);
+
+      $scope.data = {groups: groups, items: items};
+      var orderedContent = 'content';
+      var orderedSorting = function (a, b) {
+          // option groupOrder can be a property name or a sort function
+          // the sort function must compare two groups and return a value
+          //     > 0 when a > b
+          //     < 0 when a < b
+          //       0 when a == b
+          return a.value - b.value;
+      };
+
+      $scope.options = angular.extend(options, {
+          groupOrder: orderedContent,
+          editable: true
+      })
+
+      $scope.onSelect = function (items) {
+          // debugger;
+          alert('select');
+      };
+
+      $scope.onClick = function (props) {
+          //debugger;
+          alert('Click');
+      };
+
+      $scope.onDoubleClick = function (props) {
+          // debugger;
+          alert('DoubleClick');
+      };
+
+      $scope.rightClick = function (props) {
+          alert('Right click!');
+          props.event.preventDefault();
+      };
+
+      $scope.events = {
+          rangechange: $scope.onRangeChange,
+          rangechanged: $scope.onRangeChanged,
+          onload: $scope.onLoaded,
+          select: $scope.onSelect,
+          click: $scope.onClick,
+          doubleClick: $scope.onDoubleClick,
+          contextmenu: $scope.rightClick
+      };
+};
+
     //startup functions
     $selectedData = [];
-    $scope.loadTimeMap("myjson.json");
-    $scope.loadGoogleMapsData('1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o');
+  //  $scope.loadTimeMap("myjson.json");
+   $scope.loadGoogleMapsData('1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o');
 }]);
