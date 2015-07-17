@@ -217,11 +217,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         });
     };
     //placeholder until dataLoader factory is ready
-    /* load TimeMap, loads the .json file containing references to map layers and markers */
+    /* load TimeMap, loads the google sheet file containing references to map layers and markers */
     $scope.loadTimeMap = function(url) {
+
         $http.get(url).success(function(data) {
+//        $scope.dataSet.push(data); //allows for more than one dataset
+//          $scope.loadGoogleMapsData('1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o');
             if (data) {
-                $scope.dataSet.push(data); //allows for more than one dataset
                 //format and load the lastest element in dataSet
                 $scope.format_dataSet($scope.dataSet.length - 1);
             }
@@ -286,7 +288,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         //TODO: move to end of load loop when we bring google data
         $scope.initTimeline();
     };
-
 
     $scope.initTimeline = function() {
         $scope.logs = {};
@@ -430,6 +431,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
     };
     //startup functions
     $selectedData = [];
-    $scope.loadTimeMap("myjson.json");
-    $scope.loadGoogleMapsData('1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o');
+    var urlVal = "myjson";
+    $location.path(urlVal);
+    $location.replace();
+    $scope.loadTimeMap(String($location.path()));
 }]);
