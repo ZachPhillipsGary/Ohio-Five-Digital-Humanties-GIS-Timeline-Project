@@ -4,7 +4,32 @@
            // Developer Console, https://console.developers.google.com
            var CLIENT_ID = "447842114622-6mlv0teo6gs76dqmon49q36kr40gm08c.apps.googleusercontent.com";
 
-           var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+           var SCOPES = ['https://www.googleapis.com/auth/drive'];
+
+           function createPublicFolder(folderName) {
+             var body = {
+               'title': folderName,
+               'mimeType': "application/vnd.google-apps.folder"
+             };
+
+             var request = gapi.client.drive.files.insert({
+               'resource': body
+             });
+
+             request.execute(function(resp) {
+               console.log('Folder ID: ' + resp.id);
+               var permissionBody = {
+                 'value': '',
+                 'type': 'anyone',
+                 'role': 'reader'
+               };
+               var permissionRequest = gapi.client.drive.permissions.insert({
+                 'fileId': resp.id,
+                 'resource': permissionBody
+               });
+               permissionRequest.execute(function(resp) { });
+             });
+           }
 
            /**
             * Check if current user has authorized this application.
@@ -77,7 +102,7 @@
                        "export":file.exportLinks,
                        "use": false
                      };
-
+                     if (fileObject.type === 'application/vnd.google-apps.spreadsheet')
                      fileSet.push(fileObject);
                      appendPre(file.title + ' (' + file.id + ')');
                    }

@@ -11,7 +11,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         $("body").prepend(msg);
 
     }
-
+    $scope.mapName = '';
+    $scope.addFolder = function () {
+createPublicFolder($scope.mapName);
+alert('Success!');
+    };
     function getURLparams(name, url) {
         if (!url) url = location.href
         name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -45,7 +49,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
   post: returns formatted data into list
      */
     function insertData(rows, location) {
-        console.log('data', rows);
+        var tags = [];
         var exportList = [];
         if (rows.length > 0) {
             for (var i = 0; i < rows.length; i++) {
@@ -64,6 +68,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
                         polyGroup: currentRow.gsx$format.$t || 'none' // not in a polygon, do not group
 
                     };
+                    //push tags to set
+                    for (var l = 0; l < dataItem.tags.length; l++) {
+                        tags.push(dataItem.tags[l]);
+                    }
                     exportList.push(dataItem);
                 } else if (currentRow.gsx$type.$t === 'layer') {
 
@@ -78,8 +86,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
                         format: currentRow.gsx$format.$t || invalidRow(i, 'gsx$format')
 
                     };
+                    for (var l = 0; l < dataItem.tags.length; l++) {
+                        tags.push(dataItem.tags[l]);
+                    }
                     exportList.push(dataItem);
-
                 } else if (currentRow.gsx$type.$t === 'basemap') {
 
                 } else {
@@ -92,7 +102,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
             reportError('The requested dataset does not contain any valid rows. Please check that you are loading the correct file and try and again.');
         }
         console.log('EXPORT:', exportList);
-        return exportList;
+        var exportData = {
+            items: exportList,
+            tagset: tags.unique()
+        };
+        return exportData;
     }
     /*
     createOlObject ()
@@ -100,28 +114,29 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
     - object: map row object
     */
     function createOlObject(k, object) {
-      for (var k = 0; k < $scope.dataSet.length; k++) {
-        //add markers to ol map
-        if (k === 0) {
-            var markerId = 0;
-        } else {
-            var markerId = k + 1;
-        }
-        var Olobject;
-        //verify item is a marker and create ol3 marker object
-        if (object.kind === "marker") {
-            Olobject = {
-                "id": markerId,
-                "lat": $scope.dataSet[k].lat,
-                "log": $scope.dataSet[k].lng,
-                "name": $scope.dataSet[k].content
-            };
-        } else if (object.kind === "basemap") {
+        for (var k = 0; k < $scope.dataSet.length; k++) {
+            //add markers to ol map
+            if (k === 0) {
+                var markerId = 0;
+            } else {
+                var markerId = k + 1;
+            }
+            var Olobject;
+            //verify item is a marker and create ol3 marker object
+            if (object.kind === "marker") {
+                Olobject = {
+                    "id": markerId,
+                    "lat": $scope.dataSet[k].lat,
+                    "log": $scope.dataSet[k].lng,
+                    "name": $scope.dataSet[k].content
+                };
+            } else if (object.kind === "basemap") {
+
+            }
 
         }
-
     }
-}
+
     function uniqueVisObjects(array) {
 
     }
@@ -163,18 +178,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
-        console.log($scope.googleData);
+        console.log($scope.olMarkers);
         var visibleItems = args.objects; // get visible items from directive broadcast
         //reload all data if we've previously removed something, this al
         if (visibleItems.length > $scope.olMarkers.length) {
             $scope.olMarkers = []; //reset markers
+            $scope.olMarkers.push(marker);
+            $scope.format_dataSet[k];
+            console.log($scope.olMarkers.length);
+            $scope.$apply(); //update map
 
-              $scope.olMarkers.push(marker);
-                $scope.format_dataSet[k];
-                console.log($scope.olMarkers.length);
-                $scope.$apply(); //update map
-
-            }
+        }
 
         for (var i = 0; i < $scope.olMarkers.length; i++) {
             //  $scope.ol
@@ -191,9 +205,16 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
     $scope.loadGoogleMapsData = function(url) {
         var urlString = "https://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
         $http.get(urlString).success(function(data) {
-            console.log(data);
             var rows = data.feed.entry; //rows from dataset
-            insertData(rows);
+            /*
+            Take dataset, format the resuslts
+            */
+            var output = insertData(rows);
+            for (var i = 0; i < output.items.length; i++) {
+                $scope.dataSet.push(output.items[i]);
+            }
+            console.log($scope.dataSet);
+            $scope.format_dataSet(output);
         }).error(function(data) {
             console.log(data);
             reportError('Could not load data from source:' + String(data));
@@ -204,88 +225,61 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
         $scope.loadGoogleMapsData(gmapItem.id);
     };
 
-    $scope.loadSheet = function(url) {
-        //https://spreadsheets.google.com/feeds/list/{KEY }/od6/public/values?alt=json
-        $http.get(url).success(function(data) {
-            if (data) {
-                $scope.dataSet.push(data); //allows for more than one dataset
-                //format and load the lastest element in dataSet
-                $scope.format_dataSet($scope.dataSet.length - 1);
-            }
-        }).error(function(data) {
-            reportError('Could not load data from source:' + String(url));
-        });
-    };
+
     //placeholder until dataLoader factory is ready
     /* load TimeMap, loads the google sheet file containing references to map layers and markers */
     $scope.loadTimeMap = function(url) {
-
-        $http.get(url).success(function(data) {
-//        $scope.dataSet.push(data); //allows for more than one dataset
-//          $scope.loadGoogleMapsData('1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o');
-            if (data) {
-                //format and load the lastest element in dataSet
-                $scope.format_dataSet($scope.dataSet.length - 1);
+        var urlString = "http://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
+        $http.get(urlString).success(function(data) {
+            console.log(data.feed.entry);
+            if (data.feed.entry.length > 0) {
+                $location.path(String(url));
+                $location.replace();
+                for (var i = 0; i < data.feed.entry.length; i++) {
+                    var key = String(data.feed.entry[i].gsx$layers.$t);
+                    $scope.loadGoogleMapsData(key);
+                }
             }
         }).error(function(data) {
+            console.log(data);
             reportError('Could not load data from source:' + String(url));
         });
     };
     $scope.format_dataSet = function(set) {
-        //console.log(returnFilelist());
-        var data; //dataset to format
-        if (set <= $scope.dataSet.length) {
-            data = $scope.dataSet[set];
-        } else {
-            reportError("invalid dataSet, could not format");
+        var tags = set.tagset;
+        var markers = set.items;
+        for (var i = 0; i < tags.length; i++) {
+            var group = {
+                "id": i + 1,
+                "content": tags[i],
+                "value": tags[i]
+            };
+          $scope.visGroups.push(group);
         }
-        console.log(data);
-        for (var i = 0; i < data.length; i++) {
-            $scope.dataSet.push(data[i]);
-            var groupNames = []
-            var rowGroups = data[i].groups;
-            console.log(rowGroups);
-            for (var k = 0; k < rowGroups.length; k++) {
-                if ($scope.visGroups.length > 0) {
-                    if (!($scope.visGroups.contains(rowGroups[k]))) {
-                        if (!(groupNames.contains(rowGroups[k]))) {
-                            var group = {
-                                "id": $scope.visGroups.length + 1,
-                                "content": rowGroups[k],
-                                "value": rowGroups[k]
-                            };
-                            console.log(group);
-                            $scope.visGroups.push(group);
-                        }
-                    }
-                } else {
-                    var group = {
-                        "id": $scope.visGroups.length + 1,
-                        "content": rowGroups[k],
-                        "value": rowGroups[k]
-                    };
-                    console.log(group);
-                    $scope.visGroups.push(group);
-                }
-            }
-            //add markers to ol map
-            if (i === 0) {
-                var markerId = 0;
-            } else {
-                var markerId = i + 1;
-            }
-            //verify item is a marker and create ol3 marker object
-            if (data[i].kind === "marker") {
-                var marker = {
-                    "id": markerId,
-                    "lat": data[i].lat,
-                    "log": data[i].lng,
-                    "name": data[i].content
-                };
-                $scope.olMarkers.push(marker);
-            }
+        //create vis markers
+        for (var i = 0; i < markers.length; i++) {
+            var marker = {
+                "id": i + 1,
+                "lat": markers[i].lat,
+                "log": markers[i].lng,
+                "name": markers[i].content
+            };
+            $scope.olMarkers.push(marker);
         }
-        //TODO: move to end of load loop when we bring google data
+      for (var i = 0; i < $scope.dataSet.length; i++) {
+        var visDatRow = [];
+        var visObj = {
+            id: i+1,
+            content: $scope.dataSet[i].content,
+            type: "range",
+            group: i + 1,
+            start: String($scope.dataSet[i].start),
+            end: String($scope.dataSet[i].end)
+        };
+        console.log(visObj);
+        visDatRow.push(visObj);
+        $scope.visItems.add(visDatRow);
+      }
         $scope.initTimeline();
     };
 
@@ -333,7 +327,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
             groupOrder: 'content'
         };
         //create visItems
-        for (var i = 0; i < $scope.dataSet.length; i++) {
+
+      /*  for (var i = 0; i < $scope.dataSet.length; i++) {
 
             var dataSetrow = $scope.dataSet[i];
             for (var k = 0; k < dataSetrow.length; k++) {
@@ -352,13 +347,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
                         start: String(toDate(dataSetrow[k].start)),
                         end: String(toDate(dataSetrow[k].end))
                     };
-                    console.log(visObj["start"])
                     visDatRow.push(visObj);
                     $scope.visItems.add(visDatRow);
                 }
             }
         }
-
+*/
         console.log('visItems', $scope.visItems);
 
         console.log('visGroups', $scope.visGroups);
@@ -431,8 +425,5 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
     };
     //startup functions
     $selectedData = [];
-    var urlVal = "myjson";
-    $location.path(urlVal);
-    $location.replace();
-    $scope.loadTimeMap(String($location.path()));
+    $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
 }]);

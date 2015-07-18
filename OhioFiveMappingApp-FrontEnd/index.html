@@ -140,11 +140,12 @@
                         <h4 class="modal-title">Create a Map</h4>
                     </div>
                     <div class="modal-body">
-
+                      Map Name:
+                       <input name="input" ng-model="mapName" required>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" ng-click='addFolder()' class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
@@ -165,9 +166,9 @@
 
             </div>
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"  -->
-            <openlayers ol-center="wooster" width="100%" height="100vh  ">
+            <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="customLayer">
                 <!-- load all data markers into map -->
-                <ol-marker ng-repeat="item in olMarkers" lat="item.lat" lon="item.lng" custom-layers="customLayer"></ol-marker>
+                <ol-marker ng-repeat="item in olMarkers" lat="item.lat" lon="item.lng" message="item.name" ></ol-marker>
                 <!-- load all data layers into map
                 <ol-layer ng-repeat="item in olLayers" source-type="item.dataType" source-url="{{ item.dataURL }}"></ol-layer>-->
             </openlayers>
