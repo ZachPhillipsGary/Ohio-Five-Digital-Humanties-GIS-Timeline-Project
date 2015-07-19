@@ -75,8 +75,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                         lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
                         tags: toTags(currentRow.gsx$tags.$t) || invalidRow(i, 'tags'),
                         content: String(currentRow.gsx$datasource.$t) || invalidRow(i, 'datasource'),
-                        start: Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'startDate'),
-                        end: Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'endDate'),
+                        start: new Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'startDate'),
+                        end: new Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'endDate'),
                         polyGroup: currentRow.gsx$format.$t || 'none' // not in a polygon, do not group
 
                     };
@@ -94,11 +94,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                         lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
                         tags: toTags(currentRow.gsx$tags.$t) || invalidRow(i, 'tags'),
                         url: String(currentRow.gsx$datasource.$t) || invalidRow(i, 'datasource'),
-                        start: Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'startDate'),
-                        end: Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'endDate'),
+                        start: new Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'startDate'),
+                        end: new Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'endDate'),
                         format: currentRow.gsx$format.$t || invalidRow(i, 'gsx$format')
 
                     };
+                    console.log(dataItem);
                     for (var l = 0; l < dataItem.tags.length; l++) {
                         tags.push(dataItem.tags[l]);
                     }
@@ -191,10 +192,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
-    //    console.log($scope.olMarkers);
+     console.log($scope.olMarkers);
         var visibleItems = args.objects;
         console.log('visibleItems',visibleItems,'$scope.olMarkers',$scope.olMarkers,'hiddenVisObj',$scope.hiddenVisObj);
-
         for (var i = 0; i < $scope.olMarkers.length; i++) {
           if (!(visibleItems.contains($scope.olMarkers[i].id))) {
             $scope.hiddenVisObj.push($scope.olMarkers[i]);
@@ -348,7 +348,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             showMajorLabels: [true, false],
             showMinorLabels: [true, false],
             align: ['left', 'center', 'right'],
-            stack: [true, false],
+            stack: [false, false],
             moveable: [true, false],
             zoomable: [true, false],
             selectable: [false, false],
@@ -357,12 +357,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
         var options = {
             align: 'center', // left | right (String)
-            autoResize: false, // false (Boolean)
+            autoResize: true, // false (Boolean)
             editable: false,
             selectable: false,
             // start: null,
             // end: null,
-            height: '100px',
+            height: '200px',
             // width: '100%',
             margin: {
                 axis: 2,
@@ -372,7 +372,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             // max: null,
             // maxHeight: null,
             orientation: 'bottom',
-            // padding: 5,
+            //padding: 1,
             showCurrentTime: true,
             showMajorLabels: true,
             showMinorLabels: true,
@@ -418,13 +418,14 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             'groups': VisDataSet($scope.visGroups),
             'items': $scope.visItems
         };
-        var startTime = getURLparams(location.search, 't');
+      //  var now = moment().minutes(0).seconds(0).milliseconds(0);
+
+    /*  var startTime = getURLparams(location.search, 't');
         if (startTime.length === 0) {
-            now = moment().minutes(0).seconds(0).milliseconds(0);
         } else {
             var now = moment(startTime, "MM-DD-YYYY");
         }
-
+*/
         var orderedContent = 'content';
         var orderedSorting = function(a, b) {
             // option groupOrder can be a property name or a sort function
@@ -483,5 +484,5 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
   //  console.log($routeParams.type, $routeParams.id);
 
     //1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0
-    $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
+  //  $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
 }]);

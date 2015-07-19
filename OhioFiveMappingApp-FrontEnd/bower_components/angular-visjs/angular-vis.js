@@ -54,10 +54,11 @@ angular.module('ngVis', [])
                     //broadcast the currently visible timeline object
                     function getitems() {
                     scope.$emit('visTimelineChange', { objects: timeline.getVisibleItems() } );
-                    //console.log(timeline.getVisibleItems());
+                    console.log(timeline.getVisibleItems());
                     }
                     //timeline
                     timeline.on('rangechange',getitems);
+                    timeline.on('rangechanged',getitems);
 
                     // Attach an event handler if defined
                     angular.forEach(scope.events, function (callback, event) {
@@ -70,9 +71,9 @@ angular.module('ngVis', [])
                     if (scope.events != null && scope.events.onload != null &&
                         angular.isFunction(scope.events.onload)) {
                         scope.events.onload(timeline);
+                        getitems();
                     }
                 });
-
                 scope.$watchCollection('options', function (options) {
                     if (timeline == null) {
                         return;
