@@ -1,7 +1,7 @@
 
   // DOM element where the Timeline will be attached
 angular.module('ohFivetimemap',)
-.controller('Controller', ['$scope','$location', '$timeout', function($scope,$location,$timeout) {
+.controller('Controller', ['$scope','$location', '$timeout', ' $routeParams', function($scope,$location,$timeout, $routeParams) {
  /*
   $scope.data -- js object containing dataset + map location
     data -- vis Dataset variable for storing map data, populalated on init
@@ -19,13 +19,13 @@ angular.module('ohFivetimemap',)
 //hardcoding ID for now, need to change to URL param
     container: document.getElementById('visualization')
   };
-  
+
     // Create a DataSet (allows two way data-binding)
   var items = $scope.data.items;
 
   // Configuration for the Timeline
   var options = {};
- 
+
   // Create a Timeline
   var timeline = new vis.Timeline($scope.data.container, items, options);
 
@@ -41,7 +41,7 @@ angular.module('ohFivetimemap',)
           zoom: 4
         })
       });
-      
+
       //update date and timeeline
     timeline.on('rangechange', function (event, properties) {
       $('#timeDate').html(timeline.getCurrentTime());
@@ -49,14 +49,14 @@ angular.module('ohFivetimemap',)
 //setTimeline to a particular position
 function setTimeline(id) {
     $('#timeDate').html(timeline.getCurrentTime());
-    setCurrentTime(time)	
+    setCurrentTime(time)
     var visibleItems = timeline.getVisibleItems();
     timeline.redraw();
 }
 
       var data = [{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
 
-  
+
 }]);
 /*
 
@@ -68,7 +68,3 @@ function setTimeline(id) {
 
 
 */
-
-
-
-

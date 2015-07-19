@@ -1,0 +1,4 @@
+type,category,latitude,longitude,datasource,startDate,endDate, tags,format
+marker,groupB,42.8092,81.9372,Description HTML,2015-03-25T12:00:00,2015-03-25T12:00:00,"tagA,tagB,tagC","NULL, blank or polygonId"
+layer,groupA,42.8092,81.9372,http://arcgis.mapfiles.org/,2015-03-25T12:00:00,2015-03-25T12:00:00,"tagA,tagB,tagC","svg,KML,geoJSON,png,jpg,KMLz"
+basemap,groupC,42.8092,81.9372,http://arcgis.mapfiles.org/,11/22/1994,11/22/2015,n/a,"svg,KML,geoJSON,png,jpg,KMLZ"

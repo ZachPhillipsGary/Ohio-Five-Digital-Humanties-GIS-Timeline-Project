@@ -23,12 +23,14 @@
     <script src="./bower_components/moment/min/moment.min.js"></script>
     <script src="./bower_components/vis/dist/vis.min.js"></script>
     <script src="./bower_components/angular-visjs/angular-vis.js"></script>
+    <script src='./bower_components/angular-route/angular-route.min.js'></script>
+
     <link rel="stylesheet" href="./bower_components/openlayers3/build/ol.css" />
     <script src='./js/app.js'></script>
-    <script type="text/javascript" src="./js/auth.js"></script>
     <script src='./js/client.js'></script>
-    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
-
+    <script type="text/javascript" src="./js/auth.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth()"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 
 <body ng-app="mapApp">
@@ -63,7 +65,7 @@
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane fade" id="home">
                                 <div class="list-group">
-                                    <a href="#" class="list-group-item">
+                                    <a href="javascript:alert('Sorry, duplication has been disabled by the creator of this map.')" class="list-group-item">
                                         <h4 class="list-group-item-heading"> <i class="fa fa-files-o"></i> Duplicate this timeline</h4>
                                         <p class="list-group-item-text">Saves a copy of the timeline and all associated data to your google drive account.</p>
                                     </a>
@@ -84,7 +86,6 @@
                                     <!--Button for the user to click to initiate auth sequence -->
                                     <button id="authorize-button" onclick="handleAuthClick(event)" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google!</a>
                                   </div>
-                                  <span><a href="./help/">Need help? Click here for to view a Tutorial.</a><span>
                                   <hr>
                                   <span>Select a Spreadsheet from your Google Drive account to load into onto the map with the drop down below.</span><br/>
                                   <!-- data selector -->
@@ -140,12 +141,30 @@
                         <h4 class="modal-title">Create a Map</h4>
                     </div>
                     <div class="modal-body">
-                      Map Name:
-                       <input name="input" ng-model="mapName" required>
+                      <b>Creating a map is easy! Just follow these steps</b>
+                    <div id='map1'>  First, give your map a name!
+                      Map Name: <input name="input" ng-model="mapName" required></div>
+                       <div id="map2" style="display:none">
+                         <div class="alert alert-dismissible alert-success">
+  <button type="button" class="close" data-dismiss="alert">×</button>
+  <strong><i>{{mapName}}</i> has been created!</strong>                      Click the <u>save</u> button and select the folder named <b>{{mapName}}</b> to add a example layer.
+                      You can use Google Sheets to add your own points, layers, and images to this layer or create a new one.<br>
+
+</div>
+Example layer:
+                         <div class="g-savetodrive"
+   data-src="./templates/mapData.csv"
+   data-filename="map.csv"
+   data-sitename="OhioFiveMaps">
+</div>
+<hr>
+You can add more layers from you Google Drive to the map using the <a href="#profile" data-dismiss="modal" data-toggle="tab" aria-expanded="true">Add layers</a> tab.
+
+</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" ng-click='addFolder()' class="btn btn-primary">Save changes</button>
+                        <button type="button" id="newmapsave" ng-click='addFolder()' class="btn btn-primary">Save changes</button>
                     </div>
                 </div>
             </div>
@@ -168,7 +187,7 @@
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"  -->
             <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="customLayer">
                 <!-- load all data markers into map -->
-                <ol-marker ng-repeat="item in olMarkers" lat="item.lat" lon="item.lng" message="item.name" ></ol-marker>
+                <ol-marker ng-repeat="item in olMarkers" lat="item.lat" lon="item.lng"></ol-marker>
                 <!-- load all data layers into map
                 <ol-layer ng-repeat="item in olLayers" source-type="item.dataType" source-url="{{ item.dataURL }}"></ol-layer>-->
             </openlayers>

@@ -1,5 +1,5 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'getGoogleData', function(VisDataSet, $scope, $http, $location, $timeout, getGoogleData) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'googleDataLoader', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams, googleDataLoader) {
     function invalidRow(num, col) {
         var row = num;
         $("body").prepend("Row " + row + ", Column " + col + ": contains errors. Please correct and try again.");
@@ -14,7 +14,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', 'ge
     $scope.mapName = '';
     $scope.addFolder = function () {
 createPublicFolder($scope.mapName);
-alert('Success!');
     };
     function getURLparams(name, url) {
         if (!url) url = location.href
@@ -169,7 +168,7 @@ alert('Success!');
     //groups are a many (items) to one (group) relationship
     $scope.visGroups = [];
     $scope.visItems = new vis.DataSet({});
-
+    $scope.googleData = googleDataLoader;
     //update map center and zoom from URL
     var promise;
     $scope.$on("centerUrlHash", function(event, centerHash) {
@@ -425,5 +424,6 @@ alert('Success!');
     };
     //startup functions
     $selectedData = [];
+    //1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0
     $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
 }]);
