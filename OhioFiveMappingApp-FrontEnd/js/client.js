@@ -191,14 +191,30 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
-        console.log($scope.hiddenVisObj);
-        console.log($scope.olMarkers);
+    //    console.log($scope.olMarkers);
+        var visibleItems = args.objects;
+        console.log('visibleItems',visibleItems,'$scope.olMarkers',$scope.olMarkers,'hiddenVisObj',$scope.hiddenVisObj);
 
+        for (var i = 0; i < $scope.olMarkers.length; i++) {
+          if (!(visibleItems.contains($scope.olMarkers[i].id))) {
+            $scope.hiddenVisObj.push($scope.olMarkers[i]);
+            $scope.olMarkers.splice(i, 1);
+          }
+        }
+        for (var i = 0; i <  $scope.hiddenVisObj.length; i++) {
+          if (visibleItems.contains($scope.hiddenVisObj[i].id)) {
+            $scope.olMarkers.push($scope.hiddenVisObj[i]);
+            $scope.hiddenVisObj.splice(i, 1);
+          }
+        }
+        $scope.$apply(); //update map
+
+/*
         var visibleItems = args.objects; // get visible items from directive broadcast
         //reload all data if we've previously removed something, this al
-        if (visibleItems.length > $scope.olMarkers.length) {
+        if (visibleItems.length >= $scope.olMarkers.length) {
             $scope.olMarkers = []; //reset markers
-            for (var i = 0; i < hiddenVisObj.length; i++) {
+            for (var i = 0; i < $scope.hiddenVisObj.length; i++) {
               $scope.olMarkers.push($scope.hiddenVisObj[i]);
               $scope.hiddenVisObj.splice(i, 1);
             }
@@ -213,11 +229,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             if (!(visibleItems.contains($scope.olMarkers[i].id))) {
                 console.log(i, ':', $scope.olMarkers[i].id);
                 $scope.hiddenVisObj.push($scope.olMarkers[i]);
+                console.log('hidden',$scope.hiddenVisObj);
                 $scope.olMarkers.splice(i, 1);
                 $scope.$apply(); //update map
             }
 
         }
+        */
     });
 
 
