@@ -1,18 +1,18 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams,$log) {
     function invalidRow(num, col) {
         var row = num;
         $("body").prepend("Row " + row + ", Column " + col + ": contains errors. Please correct and try again.");
 
     }
+    $scope.currentlyLoadingKey = { url: '', key: ''}; //for error reporting
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
 
         $("body").prepend(msg);
 
     }
-    $scope.mapName = ''; // stores map title for addFolder
-
+    $scope.iframeStr = ''; // stores map title for addFolder
     /*
     Creates folder to store map layers and masterSheet
 
@@ -226,11 +226,28 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             $scope.format_dataSet(output);
         }).error(function(data) {
             console.log(data);
+            //display a help box if access denied
+            if (typeof data !== "undefined") {
+
+              $('#help').modal('show');
+
+            }
             reportError('Could not load data from source:' + String(data));
         });
     };
+    /*
+    Loads selected google drive file onto Map
+    */
     $scope.addLayer = function(gmapItem) {
         console.log('input:', gmapItem);
+        //for errors
+        $scope.currentlyLoadingKey.url = String(gmapItem.link);
+        $scope.currentlyLoadingKey.key = gmapItem.id;
+        $scope.frameName = '';
+        console.log($scope.currentlyLoadingKey.url);
+        //it's 1:21 AM and I don't wanna figure out why ng-src isn't working right
+        $("#publishbox").attr("src",gmapItem.link);
+        //make it Jacob proof
         $scope.loadGoogleMapsData(gmapItem.id);
     };
 
@@ -434,6 +451,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     };
     //startup functions
     $selectedData = [];
+  //  console.log($routeParams.type, $routeParams.id);
+
     //1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0
     $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
 }]);

@@ -1,0 +1,75 @@
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title" data-container="body" data-toggle="popover" data-placement="left" data-content='' data-original-title="" title="">Control Panel</h4>
+
+
+        </div>
+        <div class="modal-body">
+            <!-- begin admin area -->
+            <ul class="nav nav-tabs">
+                <li class=""><a href="#home" data-toggle="tab" aria-expanded="false">Create</a></li>
+                <li class="active"><a href="#profile" data-toggle="tab" aria-expanded="true">Add layers</a></li>
+
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+Share / Cite <span class="caret"></span>
+</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#dropdown1" data-toggle="tab">Action</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#dropdown2" data-toggle="tab">Another action</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade" id="home">
+                    <div class="list-group">
+                        <a href="javascript:alert('Sorry, duplication has been disabled by the creator of this map.')" class="list-group-item">
+                            <h4 class="list-group-item-heading"> <i class="fa fa-files-o"></i> Duplicate this timeline</h4>
+                            <p class="list-group-item-text">Saves a copy of the timeline and all associated data to your google drive account.</p>
+                        </a>
+                        <a href="#" data-toggle="modal" data-target="#createModal" class="list-group-item">
+                            <h4 class="list-group-item-heading"><i class="fa fa-plus-square-o"></i> Create your own</h4>
+                            <p class="list-group-item-text">Create an entirely new map.</p>
+                        </a>
+                        <hr> Made with <i class="fa fa-heart"></i> at <a class="wooster" href="//www.wooster.edu">W</a>
+                    </div>
+                </div>
+                <div class="tab-pane fade active in" id="profile">
+                  <div class="alert alert-dismissible alert-info">
+                      <button type="button" class="close" data-dismiss="alert">×</button>
+                      <strong>Ready to create your own map?</strong> Simply login to your <a href="https://www.google.com/drive/" class="alert-link">google drive</a> account and select a spreadsheet to begin!
+                  </div>
+                  <div id="authorize-div" align="center" style=" display: none">
+                        <span align="center">Authorize access to Drive API</span><br/>
+                        <!--Button for the user to click to initiate auth sequence -->
+                        <button id="authorize-button" onclick="handleAuthClick(event)" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google!</a>
+                      </div>
+                      <hr>
+                      <span>Select a Spreadsheet from your Google Drive account to load into onto the map with the drop down below.</span><br/>
+                      <!-- data selector -->
+                      <isteven-multi-select input-model="googleData" on-item-click="addLayer( data )"
+output-model="selectedData" button-label="fileName" item-label="fileName" tick-property="use" data-toggle="dropdown">
+                      </isteven-multi-select>
+                      <pre style="display:none" id="output"></pre>
+                    <hr>
+                    <a href="#" class="edit btn btn-primary btn-xl" disabled>Save </a>
+                </div>
+                <div class="tab-pane fade" id="dropdown1">
+                </div>
+                <div class="tab-pane fade" id="dropdown2">
+                    <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+        </div>
+    </div>
+</div>
+</div>

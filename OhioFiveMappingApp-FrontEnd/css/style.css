@@ -9,6 +9,9 @@
     font-family: wooFont;
     color:#000;
 }
+#adminCtrlbox {
+padding:5px;
+}
 
 .map {
         min-height: 100%;
