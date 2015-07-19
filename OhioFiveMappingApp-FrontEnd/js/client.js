@@ -5,6 +5,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $("body").prepend("Row " + row + ", Column " + col + ": contains errors. Please correct and try again.");
 
     }
+    $scope.currentMap;
+    $scope.hiddenVisObj = [];
     $scope.currentlyLoadingKey = { url: '', key: ''}; //for error reporting
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
@@ -67,6 +69,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 console.log(currentRow);
                 if (currentRow.gsx$type.$t === 'marker') {
                     var dataItem = {
+                        visible: true,
                         kind: String(currentRow.gsx$type.$t),
                         lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
                         lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
@@ -85,6 +88,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 } else if (currentRow.gsx$type.$t === 'layer') {
 
                     var dataItem = {
+                        visible: true,
                         kind: String(currentRow.gsx$type.$t),
                         lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
                         lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
@@ -187,22 +191,28 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
+        console.log($scope.hiddenVisObj);
         console.log($scope.olMarkers);
+
         var visibleItems = args.objects; // get visible items from directive broadcast
         //reload all data if we've previously removed something, this al
         if (visibleItems.length > $scope.olMarkers.length) {
             $scope.olMarkers = []; //reset markers
-            $scope.olMarkers.push(marker);
-            $scope.format_dataSet[k];
+            for (var i = 0; i < hiddenVisObj.length; i++) {
+              $scope.olMarkers.push($scope.hiddenVisObj[i]);
+              $scope.hiddenVisObj.splice(i, 1);
+            }
+            //$scope.format_dataSet[k];
             console.log($scope.olMarkers.length);
             $scope.$apply(); //update map
 
         }
-
+        //remove anything not on the map
         for (var i = 0; i < $scope.olMarkers.length; i++) {
             //  $scope.ol
             if (!(visibleItems.contains($scope.olMarkers[i].id))) {
                 console.log(i, ':', $scope.olMarkers[i].id);
+                $scope.hiddenVisObj.push($scope.olMarkers[i]);
                 $scope.olMarkers.splice(i, 1);
                 $scope.$apply(); //update map
             }
@@ -224,6 +234,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             }
             console.log($scope.dataSet);
             $scope.format_dataSet(output);
+            $scope.currentMap = output;
         }).error(function(data) {
             console.log(data);
             //display a help box if access denied

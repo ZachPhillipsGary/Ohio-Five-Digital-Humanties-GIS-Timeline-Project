@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <script src="http://cdn.rightjs.org/right-2.3.0.js"></script>
     <script src="./js/resize.js"></script>
@@ -24,7 +23,6 @@
     <script src="./bower_components/vis/dist/vis.min.js"></script>
     <script src="./bower_components/angular-visjs/angular-vis.js"></script>
     <script src='./bower_components/angular-route/angular-route.min.js'></script>
-
     <link rel="stylesheet" href="./bower_components/openlayers3/build/ol.css" />
     <script src='./js/app.js'></script>
     <script src='./js/client.js'></script>
@@ -32,7 +30,6 @@
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
-
 <body ng-app="mapApp">
     <div id='mainCtrl' ng-controller="mainCtrl">
         <!-- Control Panel Modal -->
@@ -63,11 +60,12 @@
                         <!-- data selector -->
                         <isteven-multi-select selection-mode="single" input-model="googleData" on-item-click="addLayer( data )" output-model="selectedData" button-label="fileName" item-label="fileName" tick-property="use" data-toggle="dropdown">
                         </isteven-multi-select>
-                        <h4>Create Spreadsheet</h4> To save a copy of the timemap template to your Google Drive, simply cick the save button below and select a location for the file. Next, open the file using Google Drive and c
+                        <h4>Create Spreadsheet</h4> To save a copy of the timemap template to your Google Drive, simply cick the save button below and select a location for the file. Next, open the file using Google Drive and <a href="https://support.google.com/docs/answer/37579?hl=en">publish it to the internet</a>. Once you've published the sheet, you'll be able to load it using the drop down menu above.
 
+                      <div class="paddingZone">Map Name: <input type="text" ng-model="newMapName" />
 
-                        <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="My Statement.pdf" data-sitename="My Company Name">
-                        </div>
+                        <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="newMapName" data-sitename="OhioFiveTimeMapApp">
+                        </div></div>
                         <pre style="display:none" id="output"></pre>
                     </div>
                     <div class="modal-footer">

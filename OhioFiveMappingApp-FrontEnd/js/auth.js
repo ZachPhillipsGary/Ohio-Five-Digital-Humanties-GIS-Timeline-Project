@@ -102,7 +102,7 @@
                          if (files && files.length > 0) {
                            for (var i = 0; i < files.length; i++) {
                            var file = files[i];
-                            console.log(file);
+                          //  console.log(file);
                              var fileObject = {
                                "fileName":String(file.title),
                                "id": file.id,
