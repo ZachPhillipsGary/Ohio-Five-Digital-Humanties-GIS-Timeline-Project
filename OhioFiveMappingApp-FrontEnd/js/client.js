@@ -197,6 +197,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
      console.log($scope.olMarkers);
         var visibleItems = args.objects;
         console.log('visibleItems',visibleItems,'$scope.olMarkers',$scope.olMarkers,'hiddenVisObj',$scope.hiddenVisObj);
+        //filter markers by visibility
         for (var i = 0; i < $scope.olMarkers.length; i++) {
           if (!(visibleItems.contains($scope.olMarkers[i].id))) {
             $scope.hiddenVisObj.push($scope.olMarkers[i]);
@@ -225,7 +226,16 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             for (var i = 0; i < output.items.length; i++) {
                 $scope.dataSet.push(output.items[i]);
             }
-            $scope.filters = output.tagset;
+            //create filters
+            for (var i = 0; i < output.tagset.length; i++) {
+              var filterObj = {
+                ticked: false,
+                name: "Hide "+output.tagset[i],
+                val:  output.tagset[i]
+              };
+              $scope.filters.push(filterObj);
+            }
+
             console.log($scope.dataSet);
             $scope.format_dataSet(output);
             $scope.currentMap = output;
@@ -337,7 +347,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             showMajorLabels: [true, false],
             showMinorLabels: [true, false],
             align: ['left', 'center', 'right'],
-            stack: [false, false],
+            stack: [true, true],
             moveable: [true, false],
             zoomable: [true, false],
             selectable: [false, false],
@@ -370,33 +380,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             // zoomMax: 1000 * 60 * 60 * 24 * 30 * 12 * 10,
             groupOrder: 'content'
         };
-        //create visItems
 
-      /*  for (var i = 0; i < $scope.dataSet.length; i++) {
-
-            var dataSetrow = $scope.dataSet[i];
-            for (var k = 0; k < dataSetrow.length; k++) {
-                if (dataSetrow[k]) {
-                    var idVal = 1;
-                    if (k > 0) {
-                        idVal = k + 1;
-                    }
-                    var visDatRow = [];
-                    var visObj = {
-                        id: idVal,
-                        olId: $scope.dataSet[k].id,
-                        content: dataSetrow[k].content,
-                        type: "range",
-                        group: i + 1,
-                        start: String(toDate(dataSetrow[k].start)),
-                        end: String(toDate(dataSetrow[k].end))
-                    };
-                    visDatRow.push(visObj);
-                    $scope.visItems.add(visDatRow);
-                }
-            }
-        }
-*/
         console.log('visItems', $scope.visItems);
 
         console.log('visGroups', $scope.visGroups);
@@ -431,7 +415,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         })
 
         $scope.onRangeChange = function(period) {
-            console.log('rng:', period);
+            //console.log('rng:', period);
         }
         $scope.onSelect = function(items) {
             // debugger;
