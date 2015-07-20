@@ -71,6 +71,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 if (currentRow.gsx$type.$t === 'marker') {
                     var dataItem = {
                         visible: true,
+                        group: currentRow.gsx$category.$t || invalidRow(i, 'gsx$category'),
                         kind: String(currentRow.gsx$type.$t),
                         lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
                         lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
@@ -90,7 +91,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
                     var dataItem = {
                         visible: true,
+                        content: "layer",
                         kind: String(currentRow.gsx$type.$t),
+                        group: currentRow.gsx$category.$t || invalidRow(i, 'gsx$category'),
                         lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
                         lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
                         tags: toTags(currentRow.gsx$tags.$t) || invalidRow(i, 'tags'),
@@ -295,15 +298,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 "content": tags[i],
                 "value": tags[i]
             };
-          $scope.visGroups.push(group);
+          //$scope.visGroups.push(group);
         }
+
+
         //create vis markers
         for (var i = 0; i < markers.length; i++) {
           if (markers[i].kind === 'marker') {
             var marker = {
                 "id": i + 1,
-                "lat": markers[i].lat,
-                "log": markers[i].lng,
+                "lat": parseFloat(markers[i].lat),
+                "lon": parseFloat(markers[i].lng),
                 "name": markers[i].content
             };
             $scope.olMarkers.push(marker);
@@ -312,7 +317,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 "id": i + 1,
                 "dataType": markers[i].format,
                 "lat": markers[i].lat,
-                "log": markers[i].lng,
+                "lon": markers[i].lng,
+                "name": markers[i].url,
                 "dataURL": markers[i].url
             };
             console.log('layer:',layer);
@@ -320,20 +326,32 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             $scope.$apply(); //update map
           }
         }
+        var groupSet = []
       for (var i = 0; i < $scope.dataSet.length; i++) {
         var visDatRow = [];
         var visObj = {
             id: i+1,
             content: $scope.dataSet[i].content,
             type: "range",
-            group: 1,
+            group: $scope.dataSet[i].group,
             start: String($scope.dataSet[i].start),
             end: String($scope.dataSet[i].end)
         };
+        groupSet.push($scope.dataSet[i].group);
         console.log(visObj);
         visDatRow.push(visObj);
         $scope.visItems.add(visDatRow);
       }
+      groupSet = groupSet.unique();
+      for (var i = 0; i < groupSet.length; i++) {
+          var group = {
+              "id": groupSet[i],
+              "content": groupSet[i],
+              "value": groupSet[i]
+          };
+        $scope.visGroups.push(group);
+      }
+
         $scope.initTimeline();
     };
 
