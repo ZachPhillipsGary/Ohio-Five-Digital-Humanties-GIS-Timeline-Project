@@ -270,6 +270,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     */
     $scope.addLayer = function(gmapItem) {
         console.log('input:', gmapItem);
+        $location.search('m',gmapItem.id);
         //for errors
         $scope.currentlyLoadingKey.url = String(gmapItem.link);
         $scope.currentlyLoadingKey.key = gmapItem.id;
@@ -486,6 +487,14 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $selectedData = [];
   //  console.log($routeParams.type, $routeParams.id);
 
+  var mapPaths = $location.search();
+  if(mapPaths.hasOwnProperty('m')) {
+  if (mapPaths.m.length > 1) {
+    $scope.addLayer(mapPaths.m);
+  }
+} else {
+  $('#adminCtrl').modal('show');
+}
     //1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0
   //  $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
 }]);
