@@ -5,6 +5,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $("body").prepend("Row " + row + ", Column " + col + ": contains errors. Please correct and try again.");
 
     }
+    $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
     $scope.hiddenVisObj = [];
     $scope.currentlyLoadingKey = { url: '', key: ''}; //for error reporting
@@ -165,6 +166,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         wooster: {
             lat: 40.8092,
             lon: 81.9372,
+            projection: "EPSG:4326",
             zoom: 4,
             centerUrlHash: true
         }
@@ -209,33 +211,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         }
         $scope.$apply(); //update map
 
-/*
-        var visibleItems = args.objects; // get visible items from directive broadcast
-        //reload all data if we've previously removed something, this al
-        if (visibleItems.length >= $scope.olMarkers.length) {
-            $scope.olMarkers = []; //reset markers
-            for (var i = 0; i < $scope.hiddenVisObj.length; i++) {
-              $scope.olMarkers.push($scope.hiddenVisObj[i]);
-              $scope.hiddenVisObj.splice(i, 1);
-            }
-            //$scope.format_dataSet[k];
-            console.log($scope.olMarkers.length);
-            $scope.$apply(); //update map
-
-        }
-        //remove anything not on the map
-        for (var i = 0; i < $scope.olMarkers.length; i++) {
-            //  $scope.ol
-            if (!(visibleItems.contains($scope.olMarkers[i].id))) {
-                console.log(i, ':', $scope.olMarkers[i].id);
-                $scope.hiddenVisObj.push($scope.olMarkers[i]);
-                console.log('hidden',$scope.hiddenVisObj);
-                $scope.olMarkers.splice(i, 1);
-                $scope.$apply(); //update map
-            }
-
-        }
-        */
     });
 
 
@@ -250,6 +225,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             for (var i = 0; i < output.items.length; i++) {
                 $scope.dataSet.push(output.items[i]);
             }
+            $scope.filters = output.tagset;
             console.log($scope.dataSet);
             $scope.format_dataSet(output);
             $scope.currentMap = output;
@@ -313,6 +289,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         }
         //create vis markers
         for (var i = 0; i < markers.length; i++) {
+          if (markers[i].kind === 'marker') {
             var marker = {
                 "id": i + 1,
                 "lat": markers[i].lat,
@@ -320,6 +297,18 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 "name": markers[i].content
             };
             $scope.olMarkers.push(marker);
+          } else if (markers[i].kind === 'layer') {
+            var layer = {
+                "id": i + 1,
+                "dataType": markers[i].format,
+                "lat": markers[i].lat,
+                "log": markers[i].lng,
+                "dataURL": markers[i].url
+            };
+            console.log('layer:',layer);
+            $scope.olLayers.push(layer);
+            $scope.$apply(); //update map
+          }
         }
       for (var i = 0; i < $scope.dataSet.length; i++) {
         var visDatRow = [];
@@ -327,7 +316,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             id: i+1,
             content: $scope.dataSet[i].content,
             type: "range",
-            group: i + 1,
+            group: 1,
             start: String($scope.dataSet[i].start),
             end: String($scope.dataSet[i].end)
         };
@@ -446,12 +435,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         }
         $scope.onSelect = function(items) {
             // debugger;
-            console.log(items);
+            console.log(props);
         };
 
         $scope.onClick = function(props) {
             //debugger;
-            console.log(items);
+            $scope.timeBoxValue = props.time;
+            console.log(props);
         };
 
         $scope.onDoubleClick = function(props) {

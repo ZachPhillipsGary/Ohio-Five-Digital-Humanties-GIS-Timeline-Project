@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <script src="http://cdn.rightjs.org/right-2.3.0.js"></script>
     <script src="./js/resize.js"></script>
@@ -30,6 +31,7 @@
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
+
 <body ng-app="mapApp">
     <div id='mainCtrl' ng-controller="mainCtrl">
         <!-- Control Panel Modal -->
@@ -62,10 +64,12 @@
                         </isteven-multi-select>
                         <h4>Create Spreadsheet</h4> To save a copy of the timemap template to your Google Drive, simply cick the save button below and select a location for the file. Next, open the file using Google Drive and <a href="https://support.google.com/docs/answer/37579?hl=en">publish it to the internet</a>. Once you've published the sheet, you'll be able to load it using the drop down menu above.
 
-                      <div class="paddingZone">Map Name: <input type="text" ng-model="newMapName" />
+                        <div class="paddingZone">Map Name:
+                            <input type="text" ng-model="newMapName" />
 
-                        <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="newMapName" data-sitename="OhioFiveTimeMapApp">
-                        </div></div>
+                            <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="newMapName" data-sitename="OhioFiveTimeMapApp">
+                            </div>
+                        </div>
                         <pre style="display:none" id="output"></pre>
                     </div>
                     <div class="modal-footer">
@@ -140,31 +144,29 @@
         </div>
         <!-- nav bar -->
         <div class="btn-toolbar">
-
             <div class="btn-group btn-group-justified">
-                <a href="#" class="btn btn-default"><i class="fa fa-arrow-left"></i></a>
+                <a href="#" class="btn btn-default" disabled><i class="fa fa-arrow-left"></i></a>
                 <a href="#" class="btn btn-default" data-toggle="modal" data-target="#adminCtrl">Menu</a>
-                <a href="#" class="btn btn-default"><i class="fa fa-arrow-right"></i></a>
-
+                <a href="#" class="btn btn-default" disabled><i class="fa fa-arrow-right"></i></a>
             </div>
             <!-- filter selector -->
             <div id="filtersComponent">
                 <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="icon name" item-label="icon name maker" tick-property="ticked" data-toggle="dropdown">
                 </isteven-multi-select>
-
             </div>
-            <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"  -->
-            <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="customLayer">
+            <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
+            <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="true" >
+              <ol-layer  source-type="ImageStatic" source-url="http://blog.wallpops.com/wp-content/upLoads/2013/05/WPE0624.jpg"></ol-layer>
+
+                <!-- load all data layers into map-->
+                <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
                 <!-- load all data markers into map -->
                 <ol-marker ng-repeat="item in olMarkers" lat="item.lat" lon="item.lng"></ol-marker>
-                <!-- load all data layers into map
-                <ol-layer ng-repeat="item in olLayers" source-type="item.dataType" source-url="{{ item.dataURL }}"></ol-layer>-->
             </openlayers>
         </div>
-
         <!-- vis-timeline -->
         <div id="timelineContainer">
-            <vis-timeline  data="data" options="options" events="events"></vis-timeline>
+            <vis-timeline data="data" width="100%" options="options" events="events"></vis-timeline>
         </div>
         <!-- initalize resizeable element -->
         <script>
