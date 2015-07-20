@@ -7,7 +7,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     }
     $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
-    $scope.hiddenVisObj = [];
+    $scope.hiddenVisObj = {layers:[],markers:[]};
     $scope.currentlyLoadingKey = { url: '', key: ''}; //for error reporting
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
@@ -203,14 +203,27 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         //filter markers by visibility
         for (var i = 0; i < $scope.olMarkers.length; i++) {
           if (!(visibleItems.contains($scope.olMarkers[i].id))) {
-            $scope.hiddenVisObj.push($scope.olMarkers[i]);
+            $scope.hiddenVisObj.markers.push($scope.olMarkers[i]);
             $scope.olMarkers.splice(i, 1);
           }
         }
-        for (var i = 0; i <  $scope.hiddenVisObj.length; i++) {
-          if (visibleItems.contains($scope.hiddenVisObj[i].id)) {
-            $scope.olMarkers.push($scope.hiddenVisObj[i]);
-            $scope.hiddenVisObj.splice(i, 1);
+      for (var i = 0; i < $scope.olLayers.length; i++) {
+        if (!(visibleItems.contains($scope.olLayers[i].id))) {
+          $scope.hiddenVisObj.layers.push($scope.olLayers[i]);
+          $scope.olLayers.splice(i, 1);
+        }
+      }
+      //done removing
+        for (var i = 0; i <  $scope.hiddenVisObj.markers.length; i++) {
+          if (visibleItems.contains($scope.hiddenVisObj.markers[i].id)) {
+            $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
+            $scope.hiddenVisObj.markers.splice(i, 1);
+          }
+        }
+        for (var i = 0; i <  $scope.hiddenVisObj.layers.length; i++) {
+          if (visibleItems.contains($scope.hiddenVisObj.layers[i].id)) {
+            $scope.olLayers.push($scope.hiddenVisObj.layers[i]);
+            $scope.hiddenVisObj.layers.splice(i, 1);
           }
         }
         $scope.$apply(); //update map
@@ -238,7 +251,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
               };
               $scope.filters.push(filterObj);
             }
-
             console.log($scope.dataSet);
             $scope.format_dataSet(output);
             $scope.currentMap = output;
@@ -323,7 +335,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             };
             console.log('layer:',layer);
             $scope.olLayers.push(layer);
-            $scope.$apply(); //update map
           }
         }
         var groupSet = []
@@ -379,7 +390,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             selectable: false,
             // start: null,
             // end: null,
-            height: '200px',
+            height: '100%',
             // width: '100%',
             margin: {
                 axis: 2,

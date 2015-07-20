@@ -54,10 +54,10 @@ angular.module('ngVis', [])
                     //broadcast the currently visible timeline object
                     function getitems() {
                     scope.$emit('visTimelineChange', { objects: timeline.getVisibleItems() } );
-                    console.log(timeline.getVisibleItems());
+                    //console.log(timeline.getVisibleItems());
                     }
                     //timeline
-                    timeline.on('rangechange',getitems);
+                  //  timeline.on('rangechange',getitems);
                     timeline.on('rangechanged',getitems);
 
                     // Attach an event handler if defined

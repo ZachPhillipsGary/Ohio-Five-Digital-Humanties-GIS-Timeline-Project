@@ -158,8 +158,8 @@
                 </isteven-multi-select>
             </div>
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
-            <openlayers ol-center="wooster"  ol-markers="olMarkers" width="100%" height="100vh" custom-layers="true" >
-                <!-- load all data layers into map -->
+            <openlayers ol-center="wooster"  width="100%" height="100vh" custom-layers="true" >
+                <!-- load all data layers into map-->
                 <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
                 <!-- load all data markers into map -->
                 <ol-marker ng-repeat="item in olMarkers" ng-repeat="item in olMarkers" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
