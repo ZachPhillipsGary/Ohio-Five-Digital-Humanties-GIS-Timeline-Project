@@ -15,5 +15,10 @@
     "n"
   ],
   "author": "Zach Phillips-Gary",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "edit-google-spreadsheet": "^0.2.19",
+    "google-auth-library": "^0.9.6",
+    "googleapis": "^2.1.1"
+  }
 }
