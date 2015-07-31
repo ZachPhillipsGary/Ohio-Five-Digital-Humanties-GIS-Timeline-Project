@@ -18,8 +18,15 @@ app.get('/', function (req, res) {
 add -- add a marker to a google drive document using node-edit-google-spreadsheet
 */
 app.post('/add/', function (req, res) {
-  var request = JSON.stringify(req.body));
-
+  var request = JSON.stringify(req.body);
+  console.log(request);
+});
+/*
+edit -- change an existing marker to a google drive document using node-edit-google-spreadsheet
+*/
+app.post('/edit/', function (req, res) {
+  var request = JSON.stringify(req.body);
+  console.log(request);
 
 });
 //init server
