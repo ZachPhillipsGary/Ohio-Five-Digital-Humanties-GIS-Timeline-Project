@@ -108,7 +108,6 @@ angular.module('openlayers-directive', ['ngSanitize'])
                 // Resolve the map object to the promises
                 scope.setMap(map);
                 olData.setMap(map, attrs.id);
-
             }
         };
     }]);

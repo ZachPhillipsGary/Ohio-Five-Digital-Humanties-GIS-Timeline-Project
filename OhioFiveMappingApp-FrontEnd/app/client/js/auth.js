@@ -92,6 +92,7 @@
                     */
                    function listFiles() {
                      var request = gapi.client.drive.files.list({
+                       'q': "mimeType = 'application/vnd.google-apps.spreadsheet'",
                          'maxResults': 999
                        });
 
@@ -102,20 +103,19 @@
                          if (files && files.length > 0) {
                            for (var i = 0; i < files.length; i++) {
                            var file = files[i];
-                          //  console.log(file);
+                        //   console.log(file);
                              var fileObject = {
                                "fileName":String(file.title),
                                "id": file.id,
-                               "type": file.mimeType,
+                               "type": String(file.mimeType),
                                "export":file.exportLinks,
                                "use": false,
                                "link": file.alternateLink
                              };
-                          if (fileObject.type === 'application/vnd.google-apps.spreadsheet')
                              fileSet.push(fileObject);
                              appendPre(file.title + ' (' + file.id + ')');
                            }
-                           console.log('adding data to angular');
+                           console.log('adding data to angular',fileSet.length);
                            var scope = angular.element($("#mainCtrl")).scope();
                               scope.$apply(function(){
                                   scope.googleData = fileSet;

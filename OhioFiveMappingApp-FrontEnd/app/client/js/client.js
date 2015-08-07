@@ -7,13 +7,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     }
     $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
+    $scope.alertBox = {};
     $scope.hiddenVisObj = {layers:[],markers:[]};
     $scope.currentlyLoadingKey = { url: '', key: ''}; //for error reporting
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
-
-        $("body").prepend(msg);
-
+      $scope.alertBox.view = true;
+      $scope.alertBox.msg = msg
     }
     $scope.iframeStr = ''; // stores map title for addFolder
     /*
@@ -172,6 +172,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             projection: "EPSG:4326",
             zoom: 4,
             centerUrlHash: true
+        },
+        addMarker: {
+            lat: 40.8092,
+            lon: 81.9372,
+            create: false, //do not show ui for adding item
+            projection: "EPSG:4326",
+            label: {
+                message: 'Test label',
+                show: true,
+                showOnMouseOver: true
+            }
         }
     });
     //markers
@@ -184,7 +195,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.filters = [];
     //selected filters from filter dropdown
     $scope.selectedFilters = [];
-
+    //detect Map click and store data
+    $scope.$on('clickLonLat', function(event, args) {
+      console.log(args);
+    // do what you want to do
+    });
     //groups are a many (items) to one (group) relationship
     $scope.visGroups = [];
     $scope.visItems = new vis.DataSet({});
@@ -343,12 +358,16 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         var visDatRow = [];
         var visObj = {
             id: i+1,
-            content: $scope.dataSet[i].content,
             type: "range",
             group: $scope.dataSet[i].group,
             start: String($scope.dataSet[i].start),
             end: String($scope.dataSet[i].end)
         };
+        //add layer or marker icon
+        if ($scope.dataSet[i].content != 'layer')
+        visObj.content = '<i class="fa fa-map-marker"></i> '+$scope.dataSet[i].content;
+        else
+        visObj.content = '<i class="fa fa-map"></i> '+$scope.dataSet[i].content;
         groupSet.push($scope.dataSet[i].group);
         console.log(visObj);
         visDatRow.push(visObj);
@@ -386,7 +405,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
         var options = {
             align: 'center', // left | right (String)
-            autoResize: true, // false (Boolean)
+            autoResize: false, // false (Boolean)
             editable: false,
             selectable: false,
             // start: null,
@@ -445,7 +464,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         })
 
         $scope.onRangeChange = function(period) {
-            //console.log('rng:', period);
+            console.log('rng:', period);
         }
         $scope.onSelect = function(items) {
             // debugger;
