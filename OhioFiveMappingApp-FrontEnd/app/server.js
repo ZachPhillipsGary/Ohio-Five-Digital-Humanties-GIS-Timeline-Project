@@ -21,8 +21,9 @@ app.get('/', function (req, res) {
 add -- add a marker to a google drive document using node-edit-google-spreadsheet
 */
 app.post('/add/', function (req, res) {
-  var request = JSON.stringify(req.body);
-  console.log(request);
+  var request = JSON.stringify(req);
+  var resval = JSON.stringify(res);
+  console.log(res,req);
 });
 /*
 edit -- change an existing marker to a google drive document using node-edit-google-spreadsheet

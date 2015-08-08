@@ -36,7 +36,7 @@
     <div id='mainCtrl' ng-controller="mainCtrl">
       <!-- Alert Box-->
       <div ng-show="alertBox.view" ng-click="alertBox.view=false" class="alert alert-danger">
-        {{alertBox.msg}}
+        {{alertBox.msg}} <strong>(X)</strong>
       </div>
       <!-- Add Marker Form-->
       <div id="markerMaker" ng-show="addMarker.create" class="panel panel-primary">
@@ -51,6 +51,12 @@
         <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
         <p>Lat: <input type="number" ng-model="addMarker.lat" />, Lon: <input type="number" ng-model="addMarker.lon" /></p>
         <p>Start: <input type="date" ng-model="addMarker.startDate" />, End: <input type="date" ng-model="addMarker.endDate" /></p>
+        Tags:
+        <ul>
+          <li ng-repeat="tag in addMarker.tags">{{tag}}</li>
+        </ul>
+        <input id="newTag" ng-model="addMarker.newTag" type="input" style="width: 100px;"  /><button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
+        <hr>
         <a href="#" class="btn btn-success">Save</a> <a href="#" ng-click="addMarker.create=false" class="btn btn-danger">Quit</a>
         <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre>      </div>
       </div>
@@ -180,10 +186,10 @@
         <!-- nav bar -->
         <div class="btn-toolbar">
             <div class="btn-group btn-group-justified">
-                <a href="#" class="btn btn-default" disabled><i class="fa fa-arrow-left"></i></a>
+                <a href="#" style="display:none" class="btn btn-default" disabled><i class="fa fa-arrow-left"></i></a>
   <div class="btn-group">
     <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-      Admin
+      {{dateRange}}
       <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
@@ -192,7 +198,7 @@
       <li><a href="#">Help</a></li>
      </ul>
   </div>
-                <a href="#" class="btn btn-default" disabled><i class="fa fa-arrow-right"></i></a>
+                <a href="#" style="display:none" class="btn btn-default" disabled><i class="fa fa-arrow-right"></i></a>
             </div>
             <!-- filter selector -->
             <div id="filtersComponent">
@@ -205,14 +211,13 @@
                 <!-- load all data layers into map-->
                 <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
                 <!-- load all data markers into map -->
-                <ol-marker ng-repeat="item in olMarkers" ng-repeat="item in olMarkers" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
+                <ol-marker ng-repeat="item in olMarkers" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
                 <!-- dummy new marker -->
-                <ol-marker ng-if="addMarker.create" ol-marker-properties="addLayer" ></ol-marker>
+                <ol-marker ng-if="addMarker.create" ol-marker-properties="addMarker" ></ol-marker>
             </openlayers>
         </div>
         <!-- vis-timeline -->
         <div id="timelineContainer">
-
             <vis-timeline data="data" width="100%" options="options" events="events"></vis-timeline>
         </div>
         <!-- initalize resizeable element -->

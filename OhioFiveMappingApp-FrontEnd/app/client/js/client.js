@@ -2,8 +2,8 @@
 mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams,$log) {
     function invalidRow(num, col) {
         var row = num;
-        $("body").prepend("Row " + row + ", Column " + col + ": contains errors. Please correct and try again.");
-
+      $scope.alertBox.msg = "Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
+      $scope.alertBox.view = true;
     }
     $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
@@ -176,15 +176,52 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         addMarker: {
             lat: 40.8092,
             lon: 81.9372,
-            create: false, //do not show ui for adding item
+            create: false, //do not show ui unless adding item
             projection: "EPSG:4326",
             label: {
                 message: 'Test label',
                 show: true,
                 showOnMouseOver: true
+            },
+            tags:[],
+            group:''
+        },
+        defaults: {
+            events: {
+                map: [ 'singleclick', 'pointermove' ]
             }
-        }
+        },
+        mouseposition: {},
+        mouseclickposition: {},
+        projection: 'EPSG:3857'
     });
+    //get mouse over coords
+    $scope.$on('openlayers.map.pointermove', function(event, data) {
+      console.log(p[0],p[1]);
+        $scope.$apply(function() {
+            if ($scope.projection === data.projection) {
+                $scope.mouseposition = data.coord;
+            } else {
+                var p = ol.proj.transform([ data.coord[0], data.coord[1] ], data.projection, $scope.projection);
+                $scope.mouseposition = {
+                    lat: p[1],
+                    lon: p[0],
+                    projection: $scope.projection
+                }
+            }
+        });
+    });
+    //for marker maker
+    $scope.addTag = function() {
+      for (var i = 0; i < $scope.addMarker.tags.length; i++) {
+        var str = String($scope.addMarker.newTag);
+        if( ($scope.addMarker.tags[i] != str) && (str.length > 0))
+        $scope.addMarker.tags.push(str);
+        else
+        alert('Invalid or duplicate tag. Please try a different name');
+      }
+
+    }
     //markers
     $scope.olMarkers = [];
     //map layers
@@ -195,11 +232,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.filters = [];
     //selected filters from filter dropdown
     $scope.selectedFilters = [];
-    //detect Map click and store data
-    $scope.$on('clickLonLat', function(event, args) {
-      console.log(args);
-    // do what you want to do
-    });
     //groups are a many (items) to one (group) relationship
     $scope.visGroups = [];
     $scope.visItems = new vis.DataSet({});
@@ -208,7 +240,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     var promise;
     $scope.$on("centerUrlHash", function(event, centerHash) {
         $location.search({
-            c: centerHash
+            c: centerHash,
+            m:  $scope.currentMap.urlKey
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
@@ -269,6 +302,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             console.log($scope.dataSet);
             $scope.format_dataSet(output);
             $scope.currentMap = output;
+            $scope.currentMap.urlKey = url;
         }).error(function(data) {
             console.log(data);
             //display a help box if access denied
@@ -285,16 +319,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     */
     $scope.addLayer = function(gmapItem) {
         console.log('input:', gmapItem);
-        $location.search('m',gmapItem.id);
+        var u = $location.search();
+        if (!(u.m === gmapItem))
+        $location.search('m',gmapItem);
         //for errors
-        $scope.currentlyLoadingKey.url = String(gmapItem.link);
-        $scope.currentlyLoadingKey.key = gmapItem.id;
+        $scope.currentlyLoadingKey.url = '';
+        $scope.currentlyLoadingKey.key = gmapItem;
         $scope.frameName = '';
-        console.log($scope.currentlyLoadingKey.url);
-        //it's 1:21 AM and I don't wanna figure out why ng-src isn't working right
-        $("#publishbox").attr("src",gmapItem.link);
+        //iframe hack fix.
+        $scope.currentlyLoadingKey.url = $scope.currentlyLoadingKey.url.replace("https", "http");
         //make it Jacob proof
-        $scope.loadGoogleMapsData(gmapItem.id);
+        $scope.loadGoogleMapsData(gmapItem);
     };
 
 
@@ -390,11 +425,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $scope.logs = {};
         $scope.defaults = {
             orientation: ['top', 'bottom'],
-            autoResize: [false, false],
+            autoResize: [true, true],
             showCurrentTime: [true, false],
             showCustomTime: [true, false],
-            showMajorLabels: [true, false],
-            showMinorLabels: [true, false],
+            showMajorLabels: [true, true],
+            showMinorLabels: [true, true],
             align: ['left', 'center', 'right'],
             stack: [true, true],
             moveable: [true, false],
@@ -405,7 +440,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
         var options = {
             align: 'center', // left | right (String)
-            autoResize: false, // false (Boolean)
+            autoResize: true, // false (Boolean)
             editable: false,
             selectable: false,
             // start: null,
@@ -462,9 +497,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             groupOrder: orderedContent,
             editable: false
         })
-
+        $scope.dateRange = 'No Map';
         $scope.onRangeChange = function(period) {
-            console.log('rng:', period);
+          $scope.dateRange = String(period.start) + ' TO ' + String(period.end);
         }
         $scope.onSelect = function(items) {
             // debugger;
@@ -508,6 +543,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
   var mapPaths = $location.search();
   if(mapPaths.hasOwnProperty('m')) {
+    console.log('LOADING',mapPaths.m);
   if (mapPaths.m.length > 1) {
     $scope.addLayer(mapPaths.m);
   }
