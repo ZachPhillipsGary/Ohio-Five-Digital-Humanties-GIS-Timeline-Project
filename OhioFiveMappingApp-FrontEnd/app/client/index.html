@@ -50,7 +50,7 @@
         <input type="checkbox" ng-model="addMarker.label.show" /> Label show
         <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
         <p>Lat: <input type="number" ng-model="addMarker.lat" />, Lon: <input type="number" ng-model="addMarker.lon" /></p>
-        <p>Start: <input type="date" ng-model="addMarker.startDate" />, End: <input type="date" ng-model="addMarker.endDate" /></p>
+        <p>Start: <input type="date" placeholder="yyyy-MM-dd" ng-model="addMarker.startDate" required />, End: <input placeholder="yyyy-MM-dd" required type="date" ng-model="addMarker.endDate" /></p>
         Tags:
         <ul>
           <li ng-repeat="tag in addMarker.tags">{{tag}}</li>

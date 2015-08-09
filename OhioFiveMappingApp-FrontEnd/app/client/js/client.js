@@ -27,7 +27,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
 
     }
-
+    function isObject(val) {
+    if (val === null) { return false;}
+    return ( (typeof val === 'function') || (typeof val === 'object') );
+    }
     function getURLparams(name, url) {
         if (!url) url = location.href
         name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -193,7 +196,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         },
         mouseposition: {},
         mouseclickposition: {},
-        projection: 'EPSG:3857'
+        projection: 'EPSG:4326'
     });
     //get mouse over coords
     $scope.$on('openlayers.map.pointermove', function(event, data) {
@@ -241,7 +244,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.$on("centerUrlHash", function(event, centerHash) {
         $location.search({
             c: centerHash,
-            m:  $scope.currentMap.urlKey
+            m:  $scope.currentMap.urlKey || 'nokey'
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
@@ -319,9 +322,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     */
     $scope.addLayer = function(gmapItem) {
         console.log('input:', gmapItem);
+        //are we getting a dropdown object or key string?
+        if(isObject(gmapItem)) {
+          gmapItem = gmapItem.id; // if object, set gmapItem equal to url key
+        }
         var u = $location.search();
         if (!(u.m === gmapItem))
-        $location.search('m',gmapItem);
+          $location.search('m',gmapItem);
         //for errors
         $scope.currentlyLoadingKey.url = '';
         $scope.currentlyLoadingKey.key = gmapItem;
@@ -542,7 +549,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
   //  console.log($routeParams.type, $routeParams.id);
 
   var mapPaths = $location.search();
-  if(mapPaths.hasOwnProperty('m')) {
+  if((mapPaths.hasOwnProperty('m')) && (mapPaths.m != 'nokey')) {
     console.log('LOADING',mapPaths.m);
   if (mapPaths.m.length > 1) {
     $scope.addLayer(mapPaths.m);
