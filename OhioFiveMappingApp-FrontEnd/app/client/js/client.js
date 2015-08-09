@@ -218,7 +218,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.addTag = function() {
       for (var i = 0; i < $scope.addMarker.tags.length; i++) {
         var str = String($scope.addMarker.newTag);
-        if( ($scope.addMarker.tags[i] != str) && (str.length > 0))
+        console.log(str);
+        if( $scope.addMarker.tags[i] != str)
         $scope.addMarker.tags.push(str);
         else
         alert('Invalid or duplicate tag. Please try a different name');
