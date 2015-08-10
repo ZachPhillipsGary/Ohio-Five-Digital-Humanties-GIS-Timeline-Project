@@ -5,6 +5,7 @@ Powered by expressjs
 // init express framework
 var express = require('express'), app = express();
 var bodyParser = require('body-parser');
+var Spreadsheet = require('edit-google-spreadsheet');
 app.use(bodyParser.json());
 /*
 serve files in "client" directory to users
@@ -26,17 +27,47 @@ add -- add a marker to a google drive document using node-edit-google-spreadshee
 */
 app.post('/add', function (req, res) {
 var input = req.body;
+console.log(req.body.marker);
   //are we adding a layer or marker?
-  if (input.hasOwnProperty('marker')) {
-    //marker
-    console.log(req.body.marker);
-  } else if (input.hasOwnProperty('layer')) {
-    //layer
-    console.log(req.body.layer);
+  if ((input.hasOwnProperty('marker')) || (input.hasOwnProperty('layer'))) {
+    //get object key
+    console.log(req.body.layer || req.body.marker);
+    var gSheetkey = req.body.marker.mapKey;
+    Spreadsheet.load({
+      debug: true,
+      spreadsheetId: String(gSheetkey),
+      worksheetName: 'Sheet1',
+
+      // authentication :)
+  oauth2: {
+  "client_id": "447842114622-d8olefdjlfptc8qrv2u43r2h2se8dj89.apps.googleusercontent.com",
+  "client_secret": "VFvrYGnHGsKxZOMpwh64rJZG",
+  "refresh_token": "1/9W4RgSrwEI17Er8YSte4FFhzLFr0o1dexJCB9EQl_5M"
+}
+    }, function sheetReady(err, spreadsheet) {
+      //use speadsheet!
+
+      if(err) throw err;
+
+      spreadsheet.metadata(function(err, metadata){
+        if(err) throw err;
+        var newRow = metadata.rowCount+1;
+        console.log(newRow);
+        var newRowdata = {};
+        newRowdata[Number(newRow)][0] = "marker";
+        spreadsheet.add(newRowdata);
+        spreadsheet.send(function(err) {
+  if(err) throw err;
+  console.log("Updated Cell at row 3, column 5 to 'hello!'");
+});
+
+        // { title: 'Sheet3', rowCount: '100', colCount: '20', updated: [Date] }
+      });
+
+    });
   } else {
     res.send('Error: invalid data');
   }
-
 });
 //init server
 var server = app.listen(8000, function () {

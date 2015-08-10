@@ -243,14 +243,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     });
     //for marker maker
     $scope.addTag = function() {
-            for (var i = 0; i < $scope.addMarker.tags.length; i++) {
                 var str = String($scope.addMarker.newTag);
-                console.log(str);
-                if ($scope.addMarker.tags[i] != str)
-                    $scope.addMarker.tags.push(str);
-                else
-                    alert('Invalid or duplicate tag. Please try a different name');
-            }
+                $scope.addMarker.tags.push(str);
+            
 
         }
         //markers
@@ -364,9 +359,26 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         //iframe hack fix.
         $scope.currentlyLoadingKey.url = $scope.currentlyLoadingKey.url.replace("https", "http");
         //make it Jacob proof
+        $scope.addMarker.mapKey = gmapItem;
         $scope.loadGoogleMapsData(gmapItem);
     };
 
+    $scope.geoCode =  function () {
+        if ($scope.addMarker.hasOwnProperty('address')) {
+          var addressArray = $scope.addMarker.address.split(',');
+          var street = addressArray[0].split(' ').join('+');
+          var city = addressArray[1].split(' ').join('+');
+          var region = addressArray[1].split(' ').join('+');
+          var urlString ="http://api.opencagedata.com/geocode/v1/json?query="+street+",+"+city+region+",+USA&key=d766bef0eb2632769bfcff5d5b93c5b7";
+          $http.get(urlString).success(function(data) {
+          console.log(data);
+          }).error(function(data) {
+            reportError('Could not connect to geoCoding service!');
+          });
+        } else {
+          reportError('Invalid Address!');
+        }
+  };
 
     //placeholder until dataLoader factory is ready
     /* load TimeMap, loads the google sheet file containing references to map layers and markers */
@@ -481,7 +493,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             // start: null,
             // end: null,
             height: '100%',
-            // width: '100%',
+            width: '100%',
             margin: {
                 axis: 2,
                 item: 2

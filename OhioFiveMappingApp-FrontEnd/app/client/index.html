@@ -37,7 +37,7 @@
     <div id='mainCtrl' ng-controller="mainCtrl">
       <!-- Alert Box-->
       <div ng-show="alertBox.view" ng-click="alertBox.view=false" class="alert alert-danger">
-        {{alertBox.msg}} <strong>(X)</strong>
+        {{alertBox.msg}} <strong><button class="btn">X</button></strong>
       </div>
       <!-- Add Marker Form-->
       <div id="markerMaker" ng-show="addMarker.create" class="panel panel-primary">
@@ -48,6 +48,7 @@
       <div class="panel-body">
         Name: <input type="input" style="width: 300px;" ng-model="addMarker.label.name" />
         Message: <input type="input" style="width: 300px;" ng-model="addMarker.label.message" />
+        Address (optional)  <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address"  /><button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address<button>
         <input type="checkbox" ng-model="addMarker.label.show" /> Label show
         <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
         <p>Lat: <input type="number" ng-model="addMarker.lat" />, Lon: <input type="number" ng-model="addMarker.lon" /></p>
