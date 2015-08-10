@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="../dist/angular-openlayers-directive.css" />
     <script src='./js/app.js'></script>
     <script src='./js/client.js'></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/textAngular/1.4.3/dist/textAngular.min.js"></script>
     <script type="text/javascript" src="./js/auth.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -57,7 +58,7 @@
         </ul>
         <input id="newTag" ng-model="addMarker.newTag" type="input" style="width: 100px;"  /><button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
         <hr>
-        <a href="#" class="btn btn-success">Save</a> <a href="#" ng-click="addMarker.create=false" class="btn btn-danger">Quit</a>
+        <button ng-click="saveMarker()" class="btn btn-success">Save</button> <a href="#" ng-click="addMarker.create=false" class="btn btn-danger">Quit</a>
         <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre>      </div>
       </div>
       <!-- Add Layer Form-->
@@ -73,7 +74,7 @@
         <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
         <p>Lat: <input type="number" ng-model="addMarker.lat" />, Lon: <input type="number" ng-model="addMarker.lon" /></p>
         <p>Start: <input type="date" ng-model="addMarker.startDate" />, End: <input type="date" ng-model="addMarker.endDate" /></p>
-        <button href="#" class="btn btn-success">Save</button>
+        <button ng-click="saveMarker()" class="btn btn-success">Save</button>
         <pre ng-bind="addMarker | json"></pre>      </div>
       </div>
         <!-- Control Panel Modal -->

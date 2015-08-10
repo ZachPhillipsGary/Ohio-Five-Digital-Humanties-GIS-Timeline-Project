@@ -1,36 +1,46 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams,$log) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams, $log) {
     function invalidRow(num, col) {
         var row = num;
-      $scope.alertBox.msg = "Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
-      $scope.alertBox.view = true;
+        $scope.alertBox.msg = "Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
+        $scope.alertBox.view = true;
     }
     $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
     $scope.alertBox = {};
-    $scope.hiddenVisObj = {layers:[],markers:[]};
-    $scope.currentlyLoadingKey = { url: '', key: ''}; //for error reporting
+    $scope.hiddenVisObj = {
+        layers: [],
+        markers: []
+    };
+    $scope.currentlyLoadingKey = {
+        url: '',
+        key: ''
+    }; //for error reporting
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
-      $scope.alertBox.view = true;
-      $scope.alertBox.msg = msg
+        $scope.alertBox.view = true;
+        $scope.alertBox.msg = msg
     }
     $scope.iframeStr = ''; // stores map title for addFolder
     /*
     Creates folder to store map layers and masterSheet
 
     */
-    $scope.addFolder = function () {
-    createPublicFolder($scope.mapName);
+    $scope.addFolder = function() {
+        createPublicFolder($scope.mapName);
     };
     $scope.onFoldercreate = function(id) {
 
 
     }
+
     function isObject(val) {
-    if (val === null) { return false;}
-    return ( (typeof val === 'function') || (typeof val === 'object') );
+        if (val === null) {
+            return false;
+        }
+        return ((typeof val === 'function') || (typeof val === 'object'));
     }
+
     function getURLparams(name, url) {
         if (!url) url = location.href
         name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
@@ -161,7 +171,24 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     function uniqueVisObjects(array) {
 
     }
-    /* toDate({}) converts object to js date */
+    $scope.saveMarker = function () {
+            $http.post('/add', {
+                marker: $scope.addMarker
+            }).
+            then(function(response) {
+              console.log(response);
+                // this callback will be called asynchronously
+                // when the response is available
+            }, function(response) {
+              console.log(response);
+
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+            });
+
+
+        }
+        /* toDate({}) converts object to js date */
     function toDate(obj) {
         console.log(obj.year, obj.month, obj.day);
         console.log('Date', new Date(obj.year, obj.month, obj.aday));
@@ -186,12 +213,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 show: true,
                 showOnMouseOver: true
             },
-            tags:[],
-            group:''
+            tags: [],
+            group: ''
         },
         defaults: {
             events: {
-                map: [ 'singleclick', 'pointermove' ]
+                map: ['singleclick', 'pointermove']
             }
         },
         mouseposition: {},
@@ -200,12 +227,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     });
     //get mouse over coords
     $scope.$on('openlayers.map.pointermove', function(event, data) {
-      console.log(p[0],p[1]);
+        console.log(p[0], p[1]);
         $scope.$apply(function() {
             if ($scope.projection === data.projection) {
                 $scope.mouseposition = data.coord;
             } else {
-                var p = ol.proj.transform([ data.coord[0], data.coord[1] ], data.projection, $scope.projection);
+                var p = ol.proj.transform([data.coord[0], data.coord[1]], data.projection, $scope.projection);
                 $scope.mouseposition = {
                     lat: p[1],
                     lon: p[0],
@@ -216,17 +243,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     });
     //for marker maker
     $scope.addTag = function() {
-      for (var i = 0; i < $scope.addMarker.tags.length; i++) {
-        var str = String($scope.addMarker.newTag);
-        console.log(str);
-        if( $scope.addMarker.tags[i] != str)
-        $scope.addMarker.tags.push(str);
-        else
-        alert('Invalid or duplicate tag. Please try a different name');
-      }
+            for (var i = 0; i < $scope.addMarker.tags.length; i++) {
+                var str = String($scope.addMarker.newTag);
+                console.log(str);
+                if ($scope.addMarker.tags[i] != str)
+                    $scope.addMarker.tags.push(str);
+                else
+                    alert('Invalid or duplicate tag. Please try a different name');
+            }
 
-    }
-    //markers
+        }
+        //markers
     $scope.olMarkers = [];
     //map layers
     $scope.olLayers = [];
@@ -245,38 +272,38 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.$on("centerUrlHash", function(event, centerHash) {
         $location.search({
             c: centerHash,
-            m:  $scope.currentMap.urlKey || 'nokey'
+            m: $scope.currentMap.urlKey || 'nokey'
         });
     });
     $scope.$on('visTimelineChange', function(event, args) {
-     console.log($scope.olMarkers);
+        console.log($scope.olMarkers);
         var visibleItems = args.objects;
-        console.log('visibleItems',visibleItems,'$scope.olMarkers',$scope.olMarkers,'hiddenVisObj',$scope.hiddenVisObj);
+        console.log('visibleItems', visibleItems, '$scope.olMarkers', $scope.olMarkers, 'hiddenVisObj', $scope.hiddenVisObj);
         //filter markers by visibility
         for (var i = 0; i < $scope.olMarkers.length; i++) {
-          if (!(visibleItems.contains($scope.olMarkers[i].id))) {
-            $scope.hiddenVisObj.markers.push($scope.olMarkers[i]);
-            $scope.olMarkers.splice(i, 1);
-          }
+            if (!(visibleItems.contains($scope.olMarkers[i].id))) {
+                $scope.hiddenVisObj.markers.push($scope.olMarkers[i]);
+                $scope.olMarkers.splice(i, 1);
+            }
         }
-      for (var i = 0; i < $scope.olLayers.length; i++) {
-        if (!(visibleItems.contains($scope.olLayers[i].id))) {
-          $scope.hiddenVisObj.layers.push($scope.olLayers[i]);
-          $scope.olLayers.splice(i, 1);
+        for (var i = 0; i < $scope.olLayers.length; i++) {
+            if (!(visibleItems.contains($scope.olLayers[i].id))) {
+                $scope.hiddenVisObj.layers.push($scope.olLayers[i]);
+                $scope.olLayers.splice(i, 1);
+            }
         }
-      }
-      //done removing
-        for (var i = 0; i <  $scope.hiddenVisObj.markers.length; i++) {
-          if (visibleItems.contains($scope.hiddenVisObj.markers[i].id)) {
-            $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
-            $scope.hiddenVisObj.markers.splice(i, 1);
-          }
+        //done removing
+        for (var i = 0; i < $scope.hiddenVisObj.markers.length; i++) {
+            if (visibleItems.contains($scope.hiddenVisObj.markers[i].id)) {
+                $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
+                $scope.hiddenVisObj.markers.splice(i, 1);
+            }
         }
-        for (var i = 0; i <  $scope.hiddenVisObj.layers.length; i++) {
-          if (visibleItems.contains($scope.hiddenVisObj.layers[i].id)) {
-            $scope.olLayers.push($scope.hiddenVisObj.layers[i]);
-            $scope.hiddenVisObj.layers.splice(i, 1);
-          }
+        for (var i = 0; i < $scope.hiddenVisObj.layers.length; i++) {
+            if (visibleItems.contains($scope.hiddenVisObj.layers[i].id)) {
+                $scope.olLayers.push($scope.hiddenVisObj.layers[i]);
+                $scope.hiddenVisObj.layers.splice(i, 1);
+            }
         }
         $scope.$apply(); //update map
 
@@ -296,12 +323,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             }
             //create filters
             for (var i = 0; i < output.tagset.length; i++) {
-              var filterObj = {
-                ticked: false,
-                name: "Hide "+output.tagset[i],
-                val:  output.tagset[i]
-              };
-              $scope.filters.push(filterObj);
+                var filterObj = {
+                    ticked: false,
+                    name: "Hide " + output.tagset[i],
+                    val: output.tagset[i]
+                };
+                $scope.filters.push(filterObj);
             }
             console.log($scope.dataSet);
             $scope.format_dataSet(output);
@@ -312,7 +339,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             //display a help box if access denied
             if (typeof data !== "undefined") {
 
-              $('#help').modal('show');
+                $('#help').modal('show');
 
             }
             reportError('Could not load data from source:' + String(data));
@@ -324,12 +351,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.addLayer = function(gmapItem) {
         console.log('input:', gmapItem);
         //are we getting a dropdown object or key string?
-        if(isObject(gmapItem)) {
-          gmapItem = gmapItem.id; // if object, set gmapItem equal to url key
+        if (isObject(gmapItem)) {
+            gmapItem = gmapItem.id; // if object, set gmapItem equal to url key
         }
         var u = $location.search();
         if (!(u.m === gmapItem))
-          $location.search('m',gmapItem);
+            $location.search('m', gmapItem);
         //for errors
         $scope.currentlyLoadingKey.url = '';
         $scope.currentlyLoadingKey.key = gmapItem;
@@ -369,62 +396,62 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 "content": tags[i],
                 "value": tags[i]
             };
-          //$scope.visGroups.push(group);
+            //$scope.visGroups.push(group);
         }
 
 
         //create vis markers
         for (var i = 0; i < markers.length; i++) {
-          if (markers[i].kind === 'marker') {
-            var marker = {
-                "id": i + 1,
-                "lat": parseFloat(markers[i].lat),
-                "lon": parseFloat(markers[i].lng),
-                "name": markers[i].content
-            };
-            $scope.olMarkers.push(marker);
-          } else if (markers[i].kind === 'layer') {
-            var layer = {
-                "id": i + 1,
-                "dataType": markers[i].format,
-                "lat": markers[i].lat,
-                "lon": markers[i].lng,
-                "name": markers[i].url,
-                "dataURL": markers[i].url
-            };
-            console.log('layer:',layer);
-            $scope.olLayers.push(layer);
-          }
+            if (markers[i].kind === 'marker') {
+                var marker = {
+                    "id": i + 1,
+                    "lat": parseFloat(markers[i].lat),
+                    "lon": parseFloat(markers[i].lng),
+                    "name": markers[i].content
+                };
+                $scope.olMarkers.push(marker);
+            } else if (markers[i].kind === 'layer') {
+                var layer = {
+                    "id": i + 1,
+                    "dataType": markers[i].format,
+                    "lat": markers[i].lat,
+                    "lon": markers[i].lng,
+                    "name": markers[i].url,
+                    "dataURL": markers[i].url
+                };
+                console.log('layer:', layer);
+                $scope.olLayers.push(layer);
+            }
         }
         var groupSet = []
-      for (var i = 0; i < $scope.dataSet.length; i++) {
-        var visDatRow = [];
-        var visObj = {
-            id: i+1,
-            type: "range",
-            group: $scope.dataSet[i].group,
-            start: String($scope.dataSet[i].start),
-            end: String($scope.dataSet[i].end)
-        };
-        //add layer or marker icon
-        if ($scope.dataSet[i].content != 'layer')
-        visObj.content = '<i class="fa fa-map-marker"></i> '+$scope.dataSet[i].content;
-        else
-        visObj.content = '<i class="fa fa-map"></i> '+$scope.dataSet[i].content;
-        groupSet.push($scope.dataSet[i].group);
-        console.log(visObj);
-        visDatRow.push(visObj);
-        $scope.visItems.add(visDatRow);
-      }
-      groupSet = groupSet.unique();
-      for (var i = 0; i < groupSet.length; i++) {
-          var group = {
-              "id": groupSet[i],
-              "content": groupSet[i],
-              "value": groupSet[i]
-          };
-        $scope.visGroups.push(group);
-      }
+        for (var i = 0; i < $scope.dataSet.length; i++) {
+            var visDatRow = [];
+            var visObj = {
+                id: i + 1,
+                type: "range",
+                group: $scope.dataSet[i].group,
+                start: String($scope.dataSet[i].start),
+                end: String($scope.dataSet[i].end)
+            };
+            //add layer or marker icon
+            if ($scope.dataSet[i].content != 'layer')
+                visObj.content = '<i class="fa fa-map-marker"></i> ' + $scope.dataSet[i].content;
+            else
+                visObj.content = '<i class="fa fa-map"></i> ' + $scope.dataSet[i].content;
+            groupSet.push($scope.dataSet[i].group);
+            console.log(visObj);
+            visDatRow.push(visObj);
+            $scope.visItems.add(visDatRow);
+        }
+        groupSet = groupSet.unique();
+        for (var i = 0; i < groupSet.length; i++) {
+            var group = {
+                "id": groupSet[i],
+                "content": groupSet[i],
+                "value": groupSet[i]
+            };
+            $scope.visGroups.push(group);
+        }
 
         $scope.initTimeline();
     };
@@ -483,9 +510,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             'groups': VisDataSet($scope.visGroups),
             'items': $scope.visItems
         };
-      //  var now = moment().minutes(0).seconds(0).milliseconds(0);
+        //  var now = moment().minutes(0).seconds(0).milliseconds(0);
 
-    /*  var startTime = getURLparams(location.search, 't');
+        /*  var startTime = getURLparams(location.search, 't');
         if (startTime.length === 0) {
         } else {
             var now = moment(startTime, "MM-DD-YYYY");
@@ -507,7 +534,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         })
         $scope.dateRange = 'No Map';
         $scope.onRangeChange = function(period) {
-          $scope.dateRange = String(period.start) + ' TO ' + String(period.end);
+            $scope.dateRange = String(period.start) + ' TO ' + String(period.end);
         }
         $scope.onSelect = function(items) {
             // debugger;
@@ -547,17 +574,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     };
     //startup functions
     $selectedData = [];
-  //  console.log($routeParams.type, $routeParams.id);
+    //  console.log($routeParams.type, $routeParams.id);
 
-  var mapPaths = $location.search();
-  if((mapPaths.hasOwnProperty('m')) && (mapPaths.m != 'nokey')) {
-    console.log('LOADING',mapPaths.m);
-  if (mapPaths.m.length > 1) {
-    $scope.addLayer(mapPaths.m);
-  }
-} else {
-  $('#adminCtrl').modal('show');
-}
+    var mapPaths = $location.search();
+    if ((mapPaths.hasOwnProperty('m')) && (mapPaths.m != 'nokey')) {
+        console.log('LOADING', mapPaths.m);
+        if (mapPaths.m.length > 1) {
+            $scope.addLayer(mapPaths.m);
+        }
+    } else {
+        $('#adminCtrl').modal('show');
+    }
     //1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0
-  //  $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
+    //  $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
 }]);
