@@ -46,12 +46,20 @@
 
       </div>
       <div class="panel-body">
-        Name: <input type="input" style="width: 300px;" ng-model="addMarker.label.name" />
         Message: <input type="input" style="width: 300px;" ng-model="addMarker.label.message" />
-        Address (optional)  <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address"  /><button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address<button>
+        <br>
+        <button ng-click="addMarker.geoCode=true" class="btn  btn-info">Get position by address</button> or  <button ng-click="addMarker.latlon=true;" class="btn btn-info">Get position from map</button>
+        <div id="geoCode" ng-show="addMarker.geoCode">  Address <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address"/><br><a href="#">Geocoding Key</a><input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey"  /><button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address</button>
+        <hr>
+        Results:
+        <ul>
+          <li ng-repeat="item in addMarker.geoCoderesults"><button ng-click="selectGeoCodeItem(item)" class="btn btn-link">{{item.formatted}}</button></li>
+        </ul>
+        <hr>
+        </div>
+        <div id='latlng' ng-show="addMarker.latlon"><p>Lat: <input type="number" ng-model="addMarker.lat" />, Lon: <input type="number" ng-model="addMarker.lon" /></p></div>
         <input type="checkbox" ng-model="addMarker.label.show" /> Label show
         <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
-        <p>Lat: <input type="number" ng-model="addMarker.lat" />, Lon: <input type="number" ng-model="addMarker.lon" /></p>
         <p>Start: <input type="date" placeholder="yyyy-MM-dd" ng-model="addMarker.startDate" required />, End: <input placeholder="yyyy-MM-dd" required type="date" ng-model="addMarker.endDate" /></p>
         Tags:
         <ul>
@@ -115,6 +123,7 @@
                             </div>
                         </div>
                         <pre style="display:none" id="output"></pre>
+                        Timeline Opacity <input type="number" ng-model="tmOpacity" min='1' max='10' ng-change="updateTimeline()" />%
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -197,14 +206,14 @@
     <ul class="dropdown-menu">
       <li><a href="#" data-toggle="modal" data-target="#adminCtrl">Load Map</a></li>
       <li><a ng-click="addMarker.create=true">Add Marker</a></li>
-      <li><a href="#">Help</a></li>
+      <li><a ng-click="addLayer.create=true">Help</a></li>
      </ul>
   </div>
                 <a href="#" style="display:none" class="btn btn-default" disabled><i class="fa fa-arrow-right"></i></a>
             </div>
             <!-- filter selector -->
             <div id="filtersComponent">
-                <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="name" item-label="name" tick-property="ticked" data-toggle="dropdown">
+                <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="name" item-label="name" tick-property="ticked" on-close="filterData()" data-toggle="dropdown">
                 </isteven-multi-select>
             </div>
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->

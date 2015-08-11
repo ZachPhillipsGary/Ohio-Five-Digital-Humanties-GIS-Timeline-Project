@@ -48,17 +48,24 @@ console.log(req.body.marker);
       //use speadsheet!
 
       if(err) throw err;
-
+/*
+{ lat: 40.8092,
+  lon: 81.9372,
+  create: true,
+  projection: 'EPSG:4326',
+  label: { message: 'Test label', show: true, showOnMouseOver: true },
+  tags: [],
+  group: '',
+  mapKey: '1tSIdqkLKzg7y14_xlDN1mafeZlsDOTWS6IyqSqGhrW0' }
+*/
       spreadsheet.metadata(function(err, metadata){
         if(err) throw err;
         var newRow = metadata.rowCount+1;
         console.log(newRow);
-        var newRowdata = {};
-        newRowdata[Number(newRow)][0] = "marker";
-        spreadsheet.add(newRowdata);
+        spreadsheet.add({ 15: { 1: "marker", 2:" ", 3: String(req.body.marker.lat), 4: String(req.body.marker.lon), 5: String(req.body.marker.label.message), 6: String(req.body.marker.startDate),7: String(req.body.marker.endDate) } });
         spreadsheet.send(function(err) {
   if(err) throw err;
-  console.log("Updated Cell at row 3, column 5 to 'hello!'");
+  console.log("Updated! ");
 });
 
         // { title: 'Sheet3', rowCount: '100', colCount: '20', updated: [Date] }

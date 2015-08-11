@@ -139,37 +139,16 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         };
         return exportData;
     }
-    /*
-    createOlObject ()
-    - k: int value for assigning ids
-    - object: map row object
-    */
-    function createOlObject(k, object) {
-        for (var k = 0; k < $scope.dataSet.length; k++) {
-            //add markers to ol map
-            if (k === 0) {
-                var markerId = 0;
-            } else {
-                var markerId = k + 1;
-            }
-            var Olobject;
-            //verify item is a marker and create ol3 marker object
-            if (object.kind === "marker") {
-                Olobject = {
-                    "id": markerId,
-                    "lat": $scope.dataSet[k].lat,
-                    "log": $scope.dataSet[k].lng,
-                    "name": $scope.dataSet[k].content
-                };
-            } else if (object.kind === "basemap") {
 
-            }
-
-        }
-    }
 
     function uniqueVisObjects(array) {
 
+    }
+    $scope.selectGeoCodeItem = function(item) {
+      console.log(item);
+      $scope.addMarker.lat=item.geometry.lat;
+      $scope.addMarker.lon=item.geometry.lng;
+      $scope.addMarker.latlon=true;
     }
     $scope.saveMarker = function () {
             $http.post('/add', {
@@ -177,6 +156,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             }).
             then(function(response) {
               console.log(response);
+              $scope.addMarker.create=false;
+              alert('Success!');
                 // this callback will be called asynchronously
                 // when the response is available
             }, function(response) {
@@ -188,6 +169,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
 
         }
+    $scope.filterData = function () {
+      console.log($scope.selectedFilters);
+      console.log($scope.olMarkers);
+      console.log($scope.olLayers);
+      //console.log($scope.)
+    }
         /* toDate({}) converts object to js date */
     function toDate(obj) {
         console.log(obj.year, obj.month, obj.day);
@@ -204,10 +191,14 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             centerUrlHash: true
         },
         addMarker: {
+            geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
             lat: 40.8092,
             lon: 81.9372,
+            geoCoderesults: [],
+            startDate: '',
+            endDate: '',
+            getAddressby: '',
             create: false, //do not show ui unless adding item
-            projection: "EPSG:4326",
             label: {
                 message: 'Test label',
                 show: true,
@@ -245,10 +236,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.addTag = function() {
                 var str = String($scope.addMarker.newTag);
                 $scope.addMarker.tags.push(str);
-            
-
-        }
-        //markers
+        };
+    $scope.timelineOpasity =  0.4;
+    //markers
     $scope.olMarkers = [];
     //map layers
     $scope.olLayers = [];
@@ -267,8 +257,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.$on("centerUrlHash", function(event, centerHash) {
         $location.search({
             c: centerHash,
-            m: $scope.currentMap.urlKey || 'nokey'
+            m: $scope.currentMap.urlKey || 'nokey',
+            o: $scope.tmOpacity || 0.4
         });
+        //update Add Point coords
+        var latlon = centerHash.split(':');
+        $scope.addMarker.lat = Number(latlon[0]);
+        $scope.addMarker.lon = Number(latlon[1]);
     });
     $scope.$on('visTimelineChange', function(event, args) {
         console.log($scope.olMarkers);
@@ -303,7 +298,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $scope.$apply(); //update map
 
     });
-
+    $scope.updateTimeline = function () {
+      var value = $scope.tmOpacity/10;
+      $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
+    }
 
     $scope.loadGoogleMapsData = function(url) {
         var urlString = "https://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
@@ -320,7 +318,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             for (var i = 0; i < output.tagset.length; i++) {
                 var filterObj = {
                     ticked: false,
-                    name: "Hide " + output.tagset[i],
+                    name: " " + output.tagset[i],
                     val: output.tagset[i]
                 };
                 $scope.filters.push(filterObj);
@@ -353,6 +351,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         if (!(u.m === gmapItem))
             $location.search('m', gmapItem);
         //for errors
+
         $scope.currentlyLoadingKey.url = '';
         $scope.currentlyLoadingKey.key = gmapItem;
         $scope.frameName = '';
@@ -366,12 +365,19 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.geoCode =  function () {
         if ($scope.addMarker.hasOwnProperty('address')) {
           var addressArray = $scope.addMarker.address.split(',');
+          if (addressArray.length < 2) {
+            reportError('Invalid Address!');
+          } else {
           var street = addressArray[0].split(' ').join('+');
           var city = addressArray[1].split(' ').join('+');
           var region = addressArray[1].split(' ').join('+');
-          var urlString ="http://api.opencagedata.com/geocode/v1/json?query="+street+",+"+city+region+",+USA&key=d766bef0eb2632769bfcff5d5b93c5b7";
+          var urlString ="http://api.opencagedata.com/geocode/v1/json?query="+street+",+"+city+region+",+USA&key="+$scope.addMarker.geoCodekey;
+          }
           $http.get(urlString).success(function(data) {
           console.log(data);
+          $scope.addMarker.result=true; // we have something to show
+          $scope.addMarker.geoCoderesults = data.results;
+
           }).error(function(data) {
             reportError('Could not connect to geoCoding service!');
           });
@@ -539,14 +545,14 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             //       0 when a == b
             return a.value - b.value;
         };
-
-        $scope.options = angular.extend(options, {
+        $scope.tmOpacity = 4; // 40%
+         $scope.options = angular.extend(options, {
             groupOrder: orderedContent,
             editable: false
         })
-        $scope.dateRange = 'No Map';
+        $scope.dateRange = '';
         $scope.onRangeChange = function(period) {
-            $scope.dateRange = String(period.start) + ' TO ' + String(period.end);
+            $scope.dateRange = String(period.start) + ' to ' + String(period.end);
         }
         $scope.onSelect = function(items) {
             // debugger;

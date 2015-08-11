@@ -4,6 +4,7 @@
            var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
            var SCOPES = ['https://www.googleapis.com/auth/drive'];
 
+
            function createPublicFolder(folderName) {
              var newFolderId = '';
              var body = {
@@ -122,6 +123,44 @@
                               });
                               $('#loaderAnimation').hide('slow');
                               $('#adminCtrlbox').show('slow');
+                         } else {
+                           appendPre('No files found.');
+                         }
+                       });
+                   }
+
+                   /**
+                    * Print files.
+                    */
+                   function findDatafile() {
+                     var request = gapi.client.drive.files.list({
+                         'maxResults': 999
+                       });
+
+                       request.execute(function(resp) {
+                         appendPre('Files:');
+                         var files = resp.items;
+                         var fileSet = [];
+                         if (files && files.length > 0) {
+                           for (var i = 0; i < files.length; i++) {
+                           var file = files[i];
+                        //   console.log(file);
+                             var fileObject = {
+                               "fileName":String(file.title),
+                               "id": file.id,
+                               "type": String(file.mimeType),
+                               "export":file.exportLinks,
+                               "use": false,
+                               "link": file.alternateLink
+                             };
+                             fileSet.push(fileObject);
+                             appendPre(file.title + ' (' + file.id + ')');
+                           }
+                           console.log('adding data to angular',fileSet.length);
+                           var scope = angular.element($("#mainCtrl")).scope();
+                              scope.$apply(function(){
+                                  scope.newLayer = fileSet;
+                              });
                          } else {
                            appendPre('No files found.');
                          }
