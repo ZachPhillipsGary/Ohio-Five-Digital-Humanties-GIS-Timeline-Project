@@ -55,7 +55,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         var d = new Date(bits[2], bits[1] - 1, bits[0]);
         return d && (d.getMonth() + 1) == bits[1] && d.getDate() == Number(bits[0]);
     }
-
+    //converts comma seperated string of tags in to array
     function toTags(tags) {
         tags = tags.split(',');
         var tagsList = [];
@@ -170,10 +170,27 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
         }
     $scope.filterData = function () {
-      console.log($scope.selectedFilters);
-      console.log($scope.olMarkers);
-      console.log($scope.olLayers);
-      //console.log($scope.)
+      //unfilter everything within view
+      for (var i = 0; i < $scope.hiddenVisObj.markers.length; i++) {
+        if(!($scope.hiddenVisObj.markers[i].hiddenbyTimeline === true)){
+          $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
+          $scope.hiddenVisObj.markers.splice(i, 1);
+        }
+      }
+      //now apply selected filters
+      for (var i = 0; i < $scope.selectedFilters.length; i++) {
+        for (var k = 0; k < $scope.olMarkers.length; k++) {
+            for (var l = 0; l < $scope.olMarkers[k].tags.length; l++) {
+              //we use val for filter since 'name' contains formatting
+              if ($scope.selectedFilters[i].val == $scope.olMarkers[k].tags[l]) {
+                console.log('match');
+                $scope.hiddenVisObj.markers.push($scope.olMarkers[k]);
+                  $scope.olMarkers.splice(k, 1);
+              }
+            }
+          }
+      }
+
     }
         /* toDate({}) converts object to js date */
     function toDate(obj) {
@@ -272,14 +289,20 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         //filter markers by visibility
         for (var i = 0; i < $scope.olMarkers.length; i++) {
             if (!(visibleItems.contains($scope.olMarkers[i].id))) {
+                $scope.olMarkers[i].hiddenbyTimeline = true;
                 $scope.hiddenVisObj.markers.push($scope.olMarkers[i]);
                 $scope.olMarkers.splice(i, 1);
+            } else {
+              $scope.olMarkers[i].hiddenbyTimeline = false;
             }
         }
         for (var i = 0; i < $scope.olLayers.length; i++) {
             if (!(visibleItems.contains($scope.olLayers[i].id))) {
+                $scope.olMarkers[i].hiddenbyTimeline = true;
                 $scope.hiddenVisObj.layers.push($scope.olLayers[i]);
                 $scope.olLayers.splice(i, 1);
+            } else {
+              $scope.olLayers[i].hiddenbyTimeline = false;
             }
         }
         //done removing
@@ -407,6 +430,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     };
     $scope.format_dataSet = function(set) {
         var tags = set.tagset;
+        console.log(set.items);
         var markers = set.items;
         for (var i = 0; i < tags.length; i++) {
             var group = {
@@ -416,13 +440,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             };
             //$scope.visGroups.push(group);
         }
-
-
         //create vis markers
         for (var i = 0; i < markers.length; i++) {
             if (markers[i].kind === 'marker') {
                 var marker = {
                     "id": i + 1,
+                    "tags": markers[i].tags || [],
                     "lat": parseFloat(markers[i].lat),
                     "lon": parseFloat(markers[i].lng),
                     "name": markers[i].content
@@ -431,6 +454,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             } else if (markers[i].kind === 'layer') {
                 var layer = {
                     "id": i + 1,
+                    "tags": markers[i].tags || [],
                     "dataType": markers[i].format,
                     "lat": markers[i].lat,
                     "lon": markers[i].lng,
