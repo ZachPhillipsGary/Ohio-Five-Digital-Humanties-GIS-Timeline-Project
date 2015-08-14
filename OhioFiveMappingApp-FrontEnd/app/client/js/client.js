@@ -106,14 +106,14 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                         visible: true,
                         content: "layer",
                         kind: String(currentRow.gsx$type.$t),
-                        group: currentRow.gsx$category.$t || invalidRow(i, 'gsx$category'),
-                        lat: currentRow.gsx$latitude.$t || invalidRow(i, 'gsx$latitude'),
-                        lng: currentRow.gsx$longitude.$t || invalidRow(i, 'gsx$latitude'),
-                        tags: toTags(currentRow.gsx$tags.$t) || invalidRow(i, 'tags'),
-                        url: String(currentRow.gsx$datasource.$t) || invalidRow(i, 'datasource'),
-                        start: new Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'startDate'),
-                        end: new Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'endDate'),
-                        format: currentRow.gsx$format.$t || invalidRow(i, 'gsx$format')
+                        group: currentRow.gsx$category.$t || invalidRow(i, 'Could not find required column: category'),
+                        lat: currentRow.gsx$latitude.$t || invalidRow(i, 'Could not find required field: latitude'),
+                        lng: currentRow.gsx$longitude.$t || invalidRow(i, 'Could not find required field: longitude'),
+                        tags: toTags(currentRow.gsx$tags.$t) || invalidRow(i, 'Could not find required field: tags'),
+                        url: String(currentRow.gsx$datasource.$t) || invalidRow(i, 'Could not find required field: datasource'),
+                        start: new Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'Could not find required field: startDate'),
+                        end: new Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'Could not find required field: endDate'),
+                        format: currentRow.gsx$format.$t || invalidRow(i, 'Could not find required field: format')
 
                     };
                     console.log(dataItem);
@@ -121,7 +121,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                         tags.push(dataItem.tags[l]);
                     }
                     exportList.push(dataItem);
-                } else if (currentRow.gsx$type.$t === 'basemap') {
+                } else if (currentRow.gsx$type.$t === 'map') {
 
                 } else {
                     invalidRow(i, 'Could not find data type');
@@ -172,7 +172,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     $scope.filterData = function () {
       //unfilter everything within view
       for (var i = 0; i < $scope.hiddenVisObj.markers.length; i++) {
-        if(!($scope.hiddenVisObj.markers[i].hiddenbyTimeline === true)){
+        if (!($scope.hiddenVisObj.markers[i].hiddenbyTimeline === true)){
           $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
           $scope.hiddenVisObj.markers.splice(i, 1);
         }
@@ -208,6 +208,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             centerUrlHash: true
         },
         addMarker: {
+            geoCode: false,
+            latlon: false,
             geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
             lat: 40.8092,
             lon: 81.9372,
