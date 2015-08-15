@@ -7,24 +7,56 @@ var express = require('express'),
     app = express();
 var bodyParser = require('body-parser');
 var Spreadsheet = require('edit-google-spreadsheet');
+var google = require('googleapis');
 app.use(bodyParser.json());
 /*
 serve files in "client" directory to users
 */
 app.use(express.static('client'));
+
+//oauth2 keys && key globals
+var CLIENT_ID = '447842114622-d8olefdjlfptc8qrv2u43r2h2se8dj89.apps.googleusercontent.com';
+var CLIENT_SECRET = 'VFvrYGnHGsKxZOMpwh64rJZG';
+var PERMISSION_SCOPE = 'https://spreadsheets.google.com/feeds'; //space-delimited string or an array of scopes
+var OAuth2Client = google.auth.OAuth2;
+var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, 'urn:ietf:wg:oauth:2.0:oob');
 //use jade to serve html files
 app.set('view engine', 'jade');
 //getJSON
 //route visitors to client app app
 app.get('/', function(req, res) {
-    //authorize user prior to serving data
-
-
     //serve main app
     res.sendFile('./client/index.html', {
         root: __dirname
     })
 });
+/*
+authentication -- generate oauth2 Credentials for user
+{
+    "client_id": "447842114622-d8olefdjlfptc8qrv2u43r2h2se8dj89.apps.googleusercontent.com",
+    "client_secret": "VFvrYGnHGsKxZOMpwh64rJZG",
+    "refresh_token": "1/9W4RgSrwEI17Er8YSte4FFhzLFr0o1dexJCB9EQl_5M"
+}
+*/
+app.get('/auth', function(req, res) {
+  // generate consent page url
+  var url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: PERMISSION_SCOPE
+  });
+  res.send(url);
+});
+app.post('/auth', function(req, res) {
+  var code = req.body.code;
+  oauth2Client.getToken(code, function(err, tokens) {
+    if(err)
+      return console.log("Error getting token: " + err);
+    var creds = { client_id: CLIENT_ID, client_secret: CLIENT_SECRET, refresh_token: tokens.refresh_token };
+    console.log('Use this in your Spreadsheet.load():\n"oauth2": %s', JSON.stringify(creds, true, 2));
+  });
+  res.send(creds || 'Error!');
+});
+
 /*
 add -- add a marker to a google drive document using node-edit-google-spreadsheet
 */
@@ -35,21 +67,16 @@ app.post('/add', function(req, res) {
     if ((input.hasOwnProperty('marker')) || (input.hasOwnProperty('layer'))) {
         //get object key
         console.log(req.body.layer || req.body.marker);
-        var gSheetkey = req.body.marker.mapKey;
+        var gSheetkey = req.body.marker.mapKey || '';
         Spreadsheet.load({
             debug: true,
             spreadsheetId: String(gSheetkey),
             worksheetName: 'Sheet1',
-
             // authentication :)
-            oauth2: {
-                "client_id": "447842114622-d8olefdjlfptc8qrv2u43r2h2se8dj89.apps.googleusercontent.com",
-                "client_secret": "VFvrYGnHGsKxZOMpwh64rJZG",
-                "refresh_token": "1/9W4RgSrwEI17Er8YSte4FFhzLFr0o1dexJCB9EQl_5M"
-            }
-        }, function sheetReady(err, spreadsheet) {
-            //use speadsheet!
+            oauth2: req.body.authentication || {}
 
+
+        }, function sheetReady(err, spreadsheet) {
             if (err) throw err;
             spreadsheet.receive(function(err, rows, info) {
       if(err) throw err;

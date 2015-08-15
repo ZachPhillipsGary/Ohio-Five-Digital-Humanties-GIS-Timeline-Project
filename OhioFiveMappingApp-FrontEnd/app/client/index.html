@@ -48,7 +48,7 @@
 
             </div>
             <div class="panel-body">
-              <div ng-show="!addMarker.select==true" class="list-group">
+              <div ng-show="!addMarker.select==true && addMarker.authorize==true" class="list-group">
   <a ng-click="addMarker.select=true;" class="list-group-item">
     <h4 class="list-group-item-heading">Add Marker</h4>
     <p class="list-group-item-text">Markers are used to repersent single points of data on the map.</p>
@@ -58,6 +58,14 @@
     <p class="list-group-item-text">Layers allow you to incliude KML, geoJSON or data from Open Street Map on your map</p>
   </a>
 </div>
+<div id="addMarker_auth" ng-show="!addMarker.authorize==true">
+  <a ng-click="authorize.showField=true" href="{{authorize.url}}" target="_blank" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
+</div>
+<div ng-show="!addMarker.showField==true">
+  Insert the authentication code from Google here: <input type="input" style="width: 300px;" ng-model="authorize.key" /><button ng-click="authorizeUser()" class="btn btn-primary btn-xs">Next</button>
+  {{authorize.msg}}
+</div>
+    <div ng-show="addMarker.authorize==true">
               <div ng-show="addMarker.geoCode==false && addMarker.latlon==false && addMarker.select==true">
                 <button ng-click="addMarker.geoCode=true;" class="btn btn-info">Get position by address</button> or
                 <button ng-click="addMarker.latlon=true;" class="btn btn-info">Get position from map</button>
@@ -99,6 +107,7 @@
                 <button ng-click="saveMarker()" class="btn btn-success">Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a>
                 <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre> </div>
         </div>
+      </div>
         <!-- Control Panel Modal -->
         <div id="adminCtrl" class="modal">
             <div class="modal-dialog">
@@ -140,7 +149,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-primary">Share</button>
                     </div>
                 </div>
             </div>

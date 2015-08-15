@@ -323,12 +323,44 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $scope.$apply(); //update map
 
     });
+    //set timeline properties based on changes from GUI. put in URL on screen change
     $scope.updateTimeline = function () {
       var value = $scope.tmOpacity/10;
       $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
     }
-
+    $scope.authorize = { url : 'test', msg:'' }; // object to hold our auth keys for Google drive changes
+    //generate key
+    $scope.authorizeUser = function() {
+      $scope.authorize.msg = '';
+      if ($scope.authorize.hasOwnProperty('key')) {
+        $http.post('/auth', {
+            key: $scope.authorize.key
+        }).
+        then(function(response) {
+          console.log(response);
+          alert('Success!');
+          $scope.authorize.creds = response;
+            // this callback will be called asynchronously
+            // when the response is available
+        }, function(response) {
+          console.log(response);
+          alert('Error!');
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+        });
+      } else {
+        $scope.authorize.msg = 'Error: invalid key.';
+      }
+    }
     $scope.loadGoogleMapsData = function(url) {
+      //get authorize url for adding or remving data
+      $http.get('/auth').success(function(data) {
+        $scope.authorize.url = data;
+      }).error(function(data) {
+        alert('Unable to connect to server.');
+        console.log(data);
+      });
+      //now get content. Use afeld as proxy for cross domain issues on some browsers
         var urlString = "https://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
         $http.get(urlString).success(function(data) {
             var rows = data.feed.entry; //rows from dataset
