@@ -47,14 +47,14 @@ app.get('/auth', function(req, res) {
   res.send(url);
 });
 app.post('/auth', function(req, res) {
-  var code = req.body.code;
+  var code = req.body.key || '';
   oauth2Client.getToken(code, function(err, tokens) {
     if(err)
-      return console.log("Error getting token: " + err);
+      res.send("Error getting token: " + err);
     var creds = { client_id: CLIENT_ID, client_secret: CLIENT_SECRET, refresh_token: tokens.refresh_token };
     console.log('Use this in your Spreadsheet.load():\n"oauth2": %s', JSON.stringify(creds, true, 2));
+    res.send(creds || '');
   });
-  res.send(creds || 'Error!');
 });
 
 /*
@@ -74,7 +74,6 @@ app.post('/add', function(req, res) {
             worksheetName: 'Sheet1',
             // authentication :)
             oauth2: req.body.authentication || {}
-
 
         }, function sheetReady(err, spreadsheet) {
             if (err) throw err;
@@ -116,7 +115,7 @@ app.post('/add', function(req, res) {
 });
 
 
-//init server
+//init HTTP server
 var server = app.listen(8000, function() {
     var host = server.address().address;
     var port = server.address().port;

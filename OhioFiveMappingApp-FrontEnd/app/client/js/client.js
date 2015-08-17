@@ -1,8 +1,8 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams, $log) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$cookies', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams, $log, $cookies) {
     function invalidRow(num, col) {
         var row = num;
-        $scope.alertBox.msg = "Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
+        $scope.alertBox.msg = "           Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
         $scope.alertBox.view = true;
     }
     $scope.timeBoxValue = ''; // set time on click
@@ -145,53 +145,52 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
     }
     $scope.selectGeoCodeItem = function(item) {
-      console.log(item);
-      $scope.addMarker.lat=item.geometry.lat;
-      $scope.addMarker.lon=item.geometry.lng;
-      $scope.addMarker.latlon=true;
+        console.log(item);
+        $scope.addMarker.lat = item.geometry.lat;
+        $scope.addMarker.lon = item.geometry.lng;
+        $scope.addMarker.latlon = true;
     }
-    $scope.saveMarker = function () {
-            $http.post('/add', {
-                marker: $scope.addMarker
-            }).
-            then(function(response) {
-              console.log(response);
-              $scope.addMarker.create=false;
-              alert('Success!');
-                // this callback will be called asynchronously
-                // when the response is available
-            }, function(response) {
-              console.log(response);
+    $scope.saveMarker = function() {
 
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-            });
-
-
-        }
-    $scope.filterData = function () {
-      //unfilter everything within view
-      for (var i = 0; i < $scope.hiddenVisObj.markers.length; i++) {
-        if (!($scope.hiddenVisObj.markers[i].hiddenbyTimeline === true)){
-          $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
-          $scope.hiddenVisObj.markers.splice(i, 1);
-        }
-      }
-      //now apply selected filters
-      for (var i = 0; i < $scope.selectedFilters.length; i++) {
-        for (var k = 0; k < $scope.olMarkers.length; k++) {
-            for (var l = 0; l < $scope.olMarkers[k].tags.length; l++) {
-              //we use val for filter since 'name' contains formatting
-              if ($scope.selectedFilters[i].val == $scope.olMarkers[k].tags[l]) {
-                console.log('match');
-                $scope.hiddenVisObj.markers.push($scope.olMarkers[k]);
-                  $scope.olMarkers.splice(k, 1);
-              }
+        $http.post('/add', {
+            marker: $scope.addMarker,
+            authentication: $scope.authorize.creds || {}
+        }).
+        then(function(response) {
+            console.log(response);
+            $scope.addMarker.create = false;
+            alert('Success!');
+            // this callback will be called asynchronously
+            // when the response is available
+        }, function(response) {
+            console.log(response);
+            // called asynchronously if an error occurs
+            // or server returns response with an error status.
+        });
+    }
+    $scope.filterData = function() {
+            //unfilter everything within view
+            for (var i = 0; i < $scope.hiddenVisObj.markers.length; i++) {
+                if (!($scope.hiddenVisObj.markers[i].hiddenbyTimeline === true)) {
+                    $scope.olMarkers.push($scope.hiddenVisObj.markers[i]);
+                    $scope.hiddenVisObj.markers.splice(i, 1);
+                }
             }
-          }
-      }
+            //now apply selected filters
+            for (var i = 0; i < $scope.selectedFilters.length; i++) {
+                for (var k = 0; k < $scope.olMarkers.length; k++) {
+                    for (var l = 0; l < $scope.olMarkers[k].tags.length; l++) {
+                        //we use val for filter since 'name' contains formatting
+                        if ($scope.selectedFilters[i].val == $scope.olMarkers[k].tags[l]) {
+                            console.log('match');
+                            $scope.hiddenVisObj.markers.push($scope.olMarkers[k]);
+                            $scope.olMarkers.splice(k, 1);
+                        }
+                    }
+                }
+            }
 
-    }
+        }
         /* toDate({}) converts object to js date */
     function toDate(obj) {
         console.log(obj.year, obj.month, obj.day);
@@ -253,10 +252,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     });
     //for marker maker
     $scope.addTag = function() {
-                var str = String($scope.addMarker.newTag);
-                $scope.addMarker.tags.push(str);
-        };
-    $scope.timelineOpasity =  0.4;
+        var str = String($scope.addMarker.newTag);
+        $scope.addMarker.tags.push(str);
+    };
+    $scope.timelineOpasity = 0.4;
     //markers
     $scope.olMarkers = [];
     //map layers
@@ -295,7 +294,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 $scope.hiddenVisObj.markers.push($scope.olMarkers[i]);
                 $scope.olMarkers.splice(i, 1);
             } else {
-              $scope.olMarkers[i].hiddenbyTimeline = false;
+                $scope.olMarkers[i].hiddenbyTimeline = false;
             }
         }
         for (var i = 0; i < $scope.olLayers.length; i++) {
@@ -304,7 +303,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
                 $scope.hiddenVisObj.layers.push($scope.olLayers[i]);
                 $scope.olLayers.splice(i, 1);
             } else {
-              $scope.olLayers[i].hiddenbyTimeline = false;
+                $scope.olLayers[i].hiddenbyTimeline = false;
             }
         }
         //done removing
@@ -324,43 +323,47 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
 
     });
     //set timeline properties based on changes from GUI. put in URL on screen change
-    $scope.updateTimeline = function () {
-      var value = $scope.tmOpacity/10;
-      $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
+    $scope.updateTimeline = function() {
+        var value = $scope.tmOpacity / 10;
+        $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
     }
-    $scope.authorize = { url : 'test', msg:'' }; // object to hold our auth keys for Google drive changes
-    //generate key
+    // object to hold our auth keys for Google drive changes
+    $scope.authorize = {
+        url: 'test',
+        msg: ''
+    };
+    //generate authentication keys for saving markers to Google Drive & store as cookie for future use
     $scope.authorizeUser = function() {
-      $scope.authorize.msg = '';
-      if ($scope.authorize.hasOwnProperty('key')) {
-        $http.post('/auth', {
-            key: $scope.authorize.key
-        }).
-        then(function(response) {
-          console.log(response);
-          alert('Success!');
-          $scope.authorize.creds = response;
-            // this callback will be called asynchronously
-            // when the response is available
-        }, function(response) {
-          console.log(response);
-          alert('Error!');
-            // called asynchronously if an error occurs
-            // or server returns response with an error status.
-        });
-      } else {
-        $scope.authorize.msg = 'Error: invalid key.';
-      }
+        $scope.authorize.msg = '';
+        if ($scope.authorize.hasOwnProperty('key')) {
+            $http.post('/auth', {
+                key: $scope.authorize.key
+            }).
+            then(function(response) {
+                if (response.hasOwnProperty('data')) {
+                    $scope.authorize.creds = response.data || {};
+                    $cookies.ohioFiveAppCreds = $scope.authorize.creds;
+                    $scope.addMarker.authorize = false;
+                } else {
+                    $scope.authorize.msg = 'Error: invalid reply from server. Please try again.';
+                }
+            }, function(response) {
+                console.log(response);
+                alert('Error!');
+            });
+        } else {
+            $scope.authorize.msg = 'Error: invalid key.';
+        }
     }
     $scope.loadGoogleMapsData = function(url) {
-      //get authorize url for adding or remving data
-      $http.get('/auth').success(function(data) {
-        $scope.authorize.url = data;
-      }).error(function(data) {
-        alert('Unable to connect to server.');
-        console.log(data);
-      });
-      //now get content. Use afeld as proxy for cross domain issues on some browsers
+        //get authorize url for adding or remving data
+        $http.get('/auth').success(function(data) {
+            $scope.authorize.url = data;
+        }).error(function(data) {
+            alert('Unable to connect to server.');
+            console.log(data);
+        });
+        //now get content. Use afeld as proxy for cross domain issues on some browsers
         var urlString = "https://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
         $http.get(urlString).success(function(data) {
             var rows = data.feed.entry; //rows from dataset
@@ -414,34 +417,35 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         $scope.frameName = '';
         //iframe hack fix.
         $scope.currentlyLoadingKey.url = $scope.currentlyLoadingKey.url.replace("https", "http");
+        console.log($scope.currentlyLoadingKey.url);
         //make it Jacob proof
         $scope.addMarker.mapKey = gmapItem;
         $scope.loadGoogleMapsData(gmapItem);
     };
 
-    $scope.geoCode =  function () {
+    $scope.geoCode = function() {
         if ($scope.addMarker.hasOwnProperty('address')) {
-          var addressArray = $scope.addMarker.address.split(',');
-          if (addressArray.length < 2) {
-            reportError('Invalid Address!');
-          } else {
-          var street = addressArray[0].split(' ').join('+');
-          var city = addressArray[1].split(' ').join('+');
-          var region = addressArray[1].split(' ').join('+');
-          var urlString ="http://api.opencagedata.com/geocode/v1/json?query="+street+",+"+city+region+",+USA&key="+$scope.addMarker.geoCodekey;
-          }
-          $http.get(urlString).success(function(data) {
-          console.log(data);
-          $scope.addMarker.result=true; // we have something to show
-          $scope.addMarker.geoCoderesults = data.results;
+            var addressArray = $scope.addMarker.address.split(',');
+            if (addressArray.length < 2) {
+                reportError('Invalid Address!');
+            } else {
+                var street = addressArray[0].split(' ').join('+');
+                var city = addressArray[1].split(' ').join('+');
+                var region = addressArray[1].split(' ').join('+');
+                var urlString = "http://api.opencagedata.com/geocode/v1/json?query=" + street + ",+" + city + region + ",+USA&key=" + $scope.addMarker.geoCodekey;
+            }
+            $http.get(urlString).success(function(data) {
+                console.log(data);
+                $scope.addMarker.result = true; // we have something to show
+                $scope.addMarker.geoCoderesults = data.results;
 
-          }).error(function(data) {
-            reportError('Could not connect to geoCoding service!');
-          });
+            }).error(function(data) {
+                reportError('Could not connect to geoCoding service!');
+            });
         } else {
-          reportError('Invalid Address!');
+            reportError('Invalid Address!');
         }
-  };
+    };
 
     //placeholder until dataLoader factory is ready
     /* load TimeMap, loads the google sheet file containing references to map layers and markers */
@@ -463,9 +467,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
         });
     };
     $scope.format_dataSet = function(set) {
-        var tags = set.tagset;
+        var tags = set.tagset || [];
         console.log(set.items);
-        var markers = set.items;
+        var markers = set.items || [];
         for (var i = 0; i < tags.length; i++) {
             var group = {
                 "id": i + 1,
@@ -474,7 +478,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             };
             //$scope.visGroups.push(group);
         }
-        //create vis markers
+        //create vis && ol3 markers
         for (var i = 0; i < markers.length; i++) {
             if (markers[i].kind === 'marker') {
                 var marker = {
@@ -604,7 +608,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
             return a.value - b.value;
         };
         $scope.tmOpacity = 4; // 40%
-         $scope.options = angular.extend(options, {
+        $scope.options = angular.extend(options, {
             groupOrder: orderedContent,
             editable: false
         })
@@ -651,7 +655,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     //startup functions
     $selectedData = [];
     //  console.log($routeParams.type, $routeParams.id);
-
     var mapPaths = $location.search();
     if ((mapPaths.hasOwnProperty('m')) && (mapPaths.m != 'nokey')) {
         console.log('LOADING', mapPaths.m);
@@ -661,6 +664,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', fun
     } else {
         $('#adminCtrl').modal('show');
     }
-    //1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0
-    //  $scope.loadTimeMap('1j3DbdVxCrlBpl4ZDWVuAZEgJSVcB7Tswj65fAnT4zF0');
+    //check for stored Credentials
+      if ($cookies.hasOwnProperty('ohioFiveAppCreds')) {
+        $scope.authorize.creds = $cookies.ohioFiveAppCreds;
+        $scope.addMarker.authorize = true; //hide authentication field
+      }
 }]);
