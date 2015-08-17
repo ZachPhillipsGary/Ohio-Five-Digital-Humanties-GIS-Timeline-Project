@@ -1,4 +1,4 @@
-var mapApp = angular.module('mapApp', ['ngVis', 'openlayers-directive', 'ngCookies', 'ngRoute', 'isteven-multi-select']);
+var mapApp = angular.module('mapApp', ['ngVis', 'openlayers-directive', 'ngRoute', 'isteven-multi-select','ngCookies']);
 mapApp.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.

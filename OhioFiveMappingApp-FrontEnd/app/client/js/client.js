@@ -1,5 +1,5 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$cookies', function(VisDataSet, $scope, $http, $location, $timeout, $routeParams, $log, $cookies) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$cookieStore', function(VisDataSet, $scope, $http, $location,$cookieStore) {
     function invalidRow(num, col) {
         var row = num;
         $scope.alertBox.msg = "           Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
@@ -342,14 +342,17 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             then(function(response) {
                 if (response.hasOwnProperty('data')) {
                     $scope.authorize.creds = response.data || {};
-                    $cookies.ohioFiveAppCreds = $scope.authorize.creds;
+                    console.log($scope.authorize.creds);
+                    $cookieStore.put('ohioFiveAppCreds',angular.toJson($scope.authorize.creds));
                     $scope.addMarker.authorize = false;
+                    $scope.addMarker.showField = false;
+                    $scope.addMarker.authorize = true;
                 } else {
                     $scope.authorize.msg = 'Error: invalid reply from server. Please try again.';
                 }
             }, function(response) {
                 console.log(response);
-                alert('Error!');
+                alert(response);
             });
         } else {
             $scope.authorize.msg = 'Error: invalid key.';
@@ -665,8 +668,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         $('#adminCtrl').modal('show');
     }
     //check for stored Credentials
-      if ($cookies.hasOwnProperty('ohioFiveAppCreds')) {
-        $scope.authorize.creds = $cookies.ohioFiveAppCreds;
+    /*
+      if (isObject(angular.fromJson($cookies.ohioFiveAppCreds || ' '))) {
+        $scope.authorize.creds = angular.fromJson($cookies.ohioFiveAppCreds);
         $scope.addMarker.authorize = true; //hide authentication field
       }
+      */
 }]);

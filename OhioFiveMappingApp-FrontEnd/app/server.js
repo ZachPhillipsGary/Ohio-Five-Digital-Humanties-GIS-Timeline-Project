@@ -47,13 +47,17 @@ app.get('/auth', function(req, res) {
   res.send(url);
 });
 app.post('/auth', function(req, res) {
-  var code = req.body.key || '';
+    var code;
+    if (req.body.hasOwnProperty('key')) {
+      code = req.body.key || '';
+    }
+  console.log(code);
   oauth2Client.getToken(code, function(err, tokens) {
     if(err)
       res.send("Error getting token: " + err);
-    var creds = { client_id: CLIENT_ID, client_secret: CLIENT_SECRET, refresh_token: tokens.refresh_token };
+    var creds = { client_id: CLIENT_ID, client_secret: CLIENT_SECRET, refresh_token: tokens.refresh_token  };
     console.log('Use this in your Spreadsheet.load():\n"oauth2": %s', JSON.stringify(creds, true, 2));
-    res.send(creds || '');
+    res.send(creds || err);
   });
 });
 
