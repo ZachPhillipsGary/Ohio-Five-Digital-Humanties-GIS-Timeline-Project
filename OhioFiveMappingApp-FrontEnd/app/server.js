@@ -5,10 +5,12 @@ Powered by expressjs
 // init express framework
 var express = require('express'),
     app = express();
+var cors = require('cors');
 var bodyParser = require('body-parser');
 var Spreadsheet = require('edit-google-spreadsheet');
 var google = require('googleapis');
 app.use(bodyParser.json());
+app.use(cors());
 /*
 serve files in "client" directory to users
 */
@@ -22,7 +24,13 @@ var OAuth2Client = google.auth.OAuth2;
 var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, 'urn:ietf:wg:oauth:2.0:oob');
 //use jade to serve html files
 app.set('view engine', 'jade');
-//getJSON
+// CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
+app.all('*', function(req, res, next) {
+       res.header("Access-Control-Allow-Origin", "*");
+       res.header("Access-Control-Allow-Headers", "X-Requested-With");
+       res.header('Access-Control-Allow-Headers', 'Content-Type');
+       next();
+});
 //route visitors to client app app
 app.get('/', function(req, res) {
     //serve main app

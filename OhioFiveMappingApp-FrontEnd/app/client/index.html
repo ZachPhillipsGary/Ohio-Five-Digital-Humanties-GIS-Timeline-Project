@@ -50,7 +50,7 @@
 
             </div>
             <div class="panel-body">
-              <div ng-show="!addMarker.select==true && addMarker.authorize==true" class="list-group">
+  <div ng-show="!addMarker.select==true && addMarker.authorize==true" class="list-group">
   <a ng-click="addMarker.select=true;addMarker.kind='marker';" class="list-group-item">
     <h4 class="list-group-item-heading">Add Marker</h4>
     <p class="list-group-item-text">Markers are used to represent single points of data on the map.</p>
@@ -71,64 +71,100 @@
   Insert the authentication code from Google here: <input type="input" style="width: 300px;" ng-model="authorize.key" /><button ng-click="authorizeUser()" class="btn btn-primary btn-xs">Next</button>
   {{authorize.msg}}
 </div>
-    <div ng-show="addMarker.authorize==true">
-              <div ng-show="addMarker.geoCode==false && addMarker.latlon==false && addMarker.select==true">
-                <button ng-click="addMarker.geoCode=true;" class="btn btn-info">Get position by address</button> or
+    <div ng-show="addMarker.select==true && addMarker.authorize==true">
+      <div class="container">
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Position</a>
+
+            </h4>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse in">
+            <div class="panel-body">  <div ng-show="addMarker.geoCode==false && addMarker.latlon==false && addMarker.select==true">
+                <button ng-click="addMarker.geoCode=true;" class="btn btn-info">Get position by address</button>
                 <button ng-click="addMarker.latlon=true;" class="btn btn-info">Get position from map</button>
-              </div>
-                <div id="geoCode" ng-show="addMarker.geoCode"> Address
-                    <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address" />
-                    <div style="display:none;"<br><a href="#">Geocoding Key</a>
-                    <input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey" /></div>
-                    <button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address</button>
-                    <hr> Results:
-                    <ul>
-                        <li ng-repeat="item in addMarker.geoCoderesults">
-                            <button ng-click="selectGeoCodeItem(item)" class="btn btn-link">{{item.formatted}}</button>
-                        </li>
-                    </ul>
-                    <hr>
-                </div>
-                <div id='latlng' ng-show="addMarker.latlon">
-                  Message: <input type="input" style="width: 300px;" ng-model="addMarker.label.message" />
-                    <p>Lat:
-                        <input type="number" ng-model="addMarker.lat" />, Lon:
-                        <input type="number" ng-model="addMarker.lon" />
-                    </p>
-                    <input type="checkbox" ng-model="addMarker.label.show" /> Label show
-                    <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
-                    <li class="dropdown-header">Upload Image:</li>
-                    <li><input type="file" id="uploaderField"> </li>
-                    <li><input colorpicker placeholder='or select a color for markers with this tag' ng-model="hexPicker.color" type="text"></li>
-                </div>
-                <div id="timeAndDate" ng-show="addMarker.latlon || addMarker.kind == 'layer'">
-                  <hr
-                  <p>Start:
-                      <input type="date" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required />, End:
-                      <input placeholder="yyyy-MM-dd" required type="date" ng-model="addMarker.endDate" />
-                  </p>
-                  Group<input type="text" ng-model="addMarker.group" />
-                  <hr>Tags:
+                <button ng-show="addMarker.kind='layer'" ng-click="addMarker.latlon=false;addMarker.lat ='';addMarker.lon ='';" class="btn btn-info">Place layer on map center</button>
+
+              </div></div>
+              <div id="geoCode" ng-show="addMarker.geoCode"> Address
+                  <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address" />
+                  <div style="display:none;"<br><a href="#">Geocoding Key</a>
+                  <input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey" /></div>
+                  <button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address</button>
+                  <hr> Results:
                   <ul>
-                  <li ng-repeat="tag in addMarker.tags">  <div class="dropdown">
-  <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-    {{tag}}
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-    <li>Remove Marker</li>
-  </ul>
-</div>
-</li>
+                      <li ng-repeat="item in addMarker.geoCoderesults">
+                          <button ng-click="selectGeoCodeItem(item)" class="btn btn-link">{{item.formatted}}</button>
+                      </li>
                   </ul>
                   <hr>
-                  <input id="newTag" placeholder="insert tag here" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
-                  <button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
-                </div>
+              </div>
+              <div id='latlng' ng-show="addMarker.latlon">
+                Message: <input type="input" style="width: 300px;" ng-model="addMarker.label.message" />
+                  <p>Lat:
+                      <input type="number" ng-model="addMarker.lat" />, Lon:
+                      <input type="number" ng-model="addMarker.lon" />
+                  </p>
+                  <input type="checkbox" ng-model="addMarker.label.show" /> Label show
+                  <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
+              </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Time and Date</a>
+            </h4>
+          </div>
+          <div id="collapse2" class="panel-collapse collapse">
+            <div class="panel-body">
+                    <p>Start:
+                    <input type="date" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required />, End:
+                    <input placeholder="yyyy-MM-ddTHH:mm:ss" required type="date" ng-model="addMarker.endDate" />
+                </p>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Groups & Tags</a>
+            </h4>
+          </div>
+          <div id="collapse3" class="panel-collapse collapse">
+            <div class="panel-body">                  Group<input type="text" ng-model="addMarker.group" />
+                              <hr>Tags:
+                              <ul>
+                              <li ng-repeat="tag in addMarker.tags">  <div class="dropdown">
+              <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{tag}}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li>Remove Marker</li>
+              </ul>
+            </div>
+            </li>
+                              </ul>
+                              <hr>
+                              <input id="newTag" placeholder="insert tag here" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
+                              <button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
+                            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">Colors and Images</a>
+            </h4>
+          </div>
+          <div id="collapse4" class="panel-collapse collapse">
+            <div class="panel-body">
               <div ng-show="addMarker.kind=='layer'">
-      <div id="uploadFile">
+      Upload Layer File<div id="uploadFile">
         <br/>
-        <button ng-click="addMarker.latlon=false;addMarker.lat ='';addMarker.lon ='';" class="btn btn-info">Place layer on map center</button>
 <hr>
                   Upload:<input type="file" id="uploaderField">  or url  <input type="text" id="url" ng-model="addMarker.url">             <div class="btn-group">
                     <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -148,7 +184,14 @@
 
                 </div>
               </div>
-                <hr>
+              <div ng-show="addMarker.kind=='marker'">
+                Upload custom marker image (optional):<input type="file" id="uploaderField">
+                </div>
+                            </div>
+          </div>
+        </div>
+      </div>
+    </div>
                 <button ng-click="saveMarker()" class="btn btn-success" disable>Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a> <a href="#" ng-click="resetMarkermodel()" class="btn btn-warning">Reset</a>
                 <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre> </div>
         </div>

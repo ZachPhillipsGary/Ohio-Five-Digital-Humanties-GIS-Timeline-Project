@@ -719,10 +719,9 @@ console.log('test');
         $('#adminCtrl').modal('show');
     }
     //check for stored Credentials
-        $scope.authorize.creds = angular.fromJson($cookieStore.get('ohioFiveAppCreds'));
+        $scope.authorize.creds = angular.fromJson($cookieStore.get('ohioFiveAppCreds')) || {};
         if ($scope.authorize.creds.hasOwnProperty('client_id')) {
             $scope.addMarker.authorize = true; //hide authentication field
             $scope.addMarker.showField = false;
-            console.log($scope.authorize.creds);
           }
 }]);
