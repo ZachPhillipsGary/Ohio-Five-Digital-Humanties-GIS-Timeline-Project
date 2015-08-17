@@ -24,6 +24,8 @@
     <script src="./bower_components/vis/dist/vis.min.js"></script>
     <script src="./bower_components/angular-visjs/angular-vis.js"></script>
     <script src='./bower_components/angular-route/angular-route.min.js'></script>
+    <script src='./bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.min.js'></script>
+    <link rel="stylesheet" href="./bower_components/angular-bootstrap-colorpicker/css/colorpicker.min.css" />
     <link rel="stylesheet" href="./bower_components/openlayers3/build/ol.css" />
     <link rel="stylesheet" href="../bower_components/openlayers3/build/ol.css" />
     <link rel="stylesheet" href="../dist/angular-openlayers-directive.css" />
@@ -55,7 +57,7 @@
   </a>
   <a ng-click="addMarker.select=true;addMarker.kind='layer';" class="list-group-item">
     <h4 class="list-group-item-heading">Add Layer</h4>
-    <p class="list-group-item-text">Layers allow you to incliude KML, geoJSON or data from Open Street Map on your map</p>
+    <p class="list-group-item-text">Layers allow you to include KML, geoJSON or data from Open Street Map on your map</p>
   </a>
   <a ng-click="addMarker.select=true;addMarker.kind='map';" class="list-group-item">
     <h4 class="list-group-item-heading">Add Map</h4>
@@ -76,8 +78,8 @@
               </div>
                 <div id="geoCode" ng-show="addMarker.geoCode"> Address
                     <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address" />
-                    <br><a href="#">Geocoding Key</a>
-                    <input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey" />
+                    <div style="display:none;"<br><a href="#">Geocoding Key</a>
+                    <input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey" /></div>
                     <button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address</button>
                     <hr> Results:
                     <ul>
@@ -95,25 +97,40 @@
                     </p>
                     <input type="checkbox" ng-model="addMarker.label.show" /> Label show
                     <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
+                    <li class="dropdown-header">Upload Image:</li>
+                    <li><input type="file" id="uploaderField"> </li>
+                    <li><input colorpicker placeholder='or select a color for markers with this tag' ng-model="hexPicker.color" type="text"></li>
                 </div>
-                <div id="timeAndDate" ng-show='addMarker.latlon || addMarker.td'>
+                <div id="timeAndDate" ng-show="addMarker.latlon || addMarker.kind == 'layer'">
+                  <hr
                   <p>Start:
                       <input type="date" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required />, End:
                       <input placeholder="yyyy-MM-dd" required type="date" ng-model="addMarker.endDate" />
                   </p>
                   Group<input type="text" ng-model="addMarker.group" />
-                  Tags:
+                  <hr>Tags:
                   <ul>
-                      <li ng-repeat="tag in addMarker.tags">{{tag}}</li>
+                  <li ng-repeat="tag in addMarker.tags">  <div class="dropdown">
+  <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    {{tag}}
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+    <li>Remove Marker</li>
+  </ul>
+</div>
+</li>
                   </ul>
-                  <input id="newTag" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
+                  <hr>
+                  <input id="newTag" placeholder="insert tag here" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
                   <button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
                 </div>
               <div ng-show="addMarker.kind=='layer'">
       <div id="uploadFile">
-        <button ng-click="addMarker.latlon=true;" class="btn btn-info">Place layer on map center</button>
-
-                  Upload:<input type="file" id="uploaderField">                <div class="btn-group">
+        <br/>
+        <button ng-click="addMarker.latlon=false;addMarker.lat ='';addMarker.lon ='';" class="btn btn-info">Place layer on map center</button>
+<hr>
+                  Upload:<input type="file" id="uploaderField">  or url  <input type="text" id="url" ng-model="addMarker.url">             <div class="btn-group">
                     <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                       {{addMarker.format}}
                       <span class="caret"></span>
@@ -132,7 +149,7 @@
                 </div>
               </div>
                 <hr>
-                <button ng-click="saveMarker()" class="btn btn-success" disable>Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a><a href="#" ng-click="resetMarkermodel()" class="btn btn-warning">Reset</a>
+                <button ng-click="saveMarker()" class="btn btn-success" disable>Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a> <a href="#" ng-click="resetMarkermodel()" class="btn btn-warning">Reset</a>
                 <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre> </div>
         </div>
       </div>
@@ -236,12 +253,14 @@
             </div>
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
             <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="true">
+              <ol-layer ng-if="addMarker.format=='OSM'" ol-layer-properties="mapquest"></ol-layer>
                 <!-- load all data layers into map-->
                 <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
                 <!-- load all data markers into map -->
                 <ol-marker ng-repeat="item in olMarkers" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
                 <!-- dummy new marker -->
-                <ol-marker ng-if="addMarker.create" ol-marker-properties="addMarker"></ol-marker>
+                <ol-marker ng-if="addMarker.create && addMarker.kind=='marker'" ol-marker-properties="addMarker"></ol-marker>
+                <ol-layer ng-if="addMarker.create && addMarker.kind=='layer'" ol-layer-properties="addMarker"></ol-layer>
             </openlayers>
         </div>
         <!-- vis-timeline -->

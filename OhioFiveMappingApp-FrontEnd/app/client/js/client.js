@@ -169,7 +169,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         });
     }
     $scope.resetMarkermodel = function() {
-      var check = confirm('Reset'+$scope.addMarker.kind+'?');
+      var check = confirm('Reset '+$scope.addMarker.kind+'?');
       if (check)
       $scope.addMarker = {
           url: '',
@@ -313,10 +313,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             o: $scope.tmOpacity || 0.4
         });
         //update Add Point coords
-        if($scope.addMarker.latlon == true)
+        if($scope.addMarker.latlon == true) {
         var latlon = centerHash.split(':');
         $scope.addMarker.lat = Number(latlon[0]);
         $scope.addMarker.lon = Number(latlon[1]);
+      }
     });
     $scope.$on('visTimelineChange', function(event, args) {
         console.log($scope.olMarkers);
@@ -393,6 +394,21 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             $scope.authorize.msg = 'Error: invalid key.';
         }
     }
+    $scope.toggleMapQuestLayer = function() {
+      if($scope.addMarker.format=='OSM') {
+      angular.extend($scope, {
+                      mapquest: {
+                          source: {
+                              type: 'MapQuest',
+                              layer: 'sat'
+                          }
+                      }
+                  });
+                } else {
+                  $scope.mapquest = {};
+                }
+console.log('test');
+    };
     $scope.loadGoogleMapsData = function(url) {
         //get authorize url for adding or remving data
         $http.get('/auth').success(function(data) {
