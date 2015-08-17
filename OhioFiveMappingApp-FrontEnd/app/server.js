@@ -69,6 +69,14 @@ app.post('/add', function(req, res) {
     console.log(req.body.marker);
     //are we adding a layer or marker?
     if ((input.hasOwnProperty('marker')) || (input.hasOwnProperty('layer'))) {
+        //convert array of strings into comma seperated string
+        function tagsToString(tagsArray) {
+          var returnVal = '';
+          for (var i = 0; i < tagsArray.length; i++) {
+            returnVal + tagsArray[i] + ',';
+          }
+          return returnVal;
+        }
         //get object key
         console.log(req.body.layer || req.body.marker);
         var gSheetkey = req.body.marker.mapKey || '';
@@ -87,13 +95,15 @@ app.post('/add', function(req, res) {
       var rowsLength = Object.keys(rows).length;
       var rowObject = {};
             var row = {
-                  1: "marker",
-                  2: " ",
-                  3: String(req.body.marker.lat),
-                  4: String(req.body.marker.lon),
-                  5: String(req.body.marker.label.message),
-                  6: String(req.body.marker.startDate),
-                  7: String(req.body.marker.endDate)
+                  1: String(req.body.marker.kind) || '',
+                  2: String(req.body.marker.group) || '',
+                  3: String(req.body.marker.lat) || '',
+                  4: String(req.body.marker.lon) || '',
+                  5: String(req.body.marker.label.message) || String(req.body.marker.label.url),
+                  6: String(req.body.marker.startDate) || '',
+                  7: String(req.body.marker.endDate) || '',
+                  8: tagsToString(req.body.marker.tags || []),
+                  9: String(req.body.marker.kind) || ''
               };
               rowObject[rowsLength+1] = row;
               console.log('row',rowObject);

@@ -150,8 +150,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         $scope.addMarker.lon = item.geometry.lng;
         $scope.addMarker.latlon = true;
     }
+    //POST marker data and authentication keys to server
     $scope.saveMarker = function() {
-
         $http.post('/add', {
             marker: $scope.addMarker,
             authentication: $scope.authorize.creds || {}
@@ -167,6 +167,35 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             // called asynchronously if an error occurs
             // or server returns response with an error status.
         });
+    }
+    $scope.resetMarkermodel = function() {
+      var check = confirm('Reset'+$scope.addMarker.kind+'?');
+      if (check)
+      $scope.addMarker = {
+          url: '',
+          kind: '',
+          geoCode: false,
+          latlon: false,
+          geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
+          lat: 40.8092,
+          lon: 81.9372,
+          geoCoderesults: [],
+          group: '',
+          startDate: '',
+          showField: false,
+          endDate: '',
+          format: 'select file format',
+          getAddressby: '',
+          create: false, //do not show ui unless adding item
+          label: {
+              message: 'Test label',
+              show: true,
+              showOnMouseOver: true
+          },
+          tags: [],
+          group: ''
+      };
+
     }
     $scope.filterData = function() {
             //unfilter everything within view
@@ -207,14 +236,19 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             centerUrlHash: true
         },
         addMarker: {
+            url: '',
+            kind: '',
             geoCode: false,
             latlon: false,
             geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
             lat: 40.8092,
             lon: 81.9372,
             geoCoderesults: [],
+            group: '',
             startDate: '',
+            showField: false,
             endDate: '',
+            format: 'select file format',
             getAddressby: '',
             create: false, //do not show ui unless adding item
             label: {
@@ -279,6 +313,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             o: $scope.tmOpacity || 0.4
         });
         //update Add Point coords
+        if($scope.addMarker.latlon == true)
         var latlon = centerHash.split(':');
         $scope.addMarker.lat = Number(latlon[0]);
         $scope.addMarker.lon = Number(latlon[1]);
@@ -668,10 +703,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         $('#adminCtrl').modal('show');
     }
     //check for stored Credentials
-    /*
-      if (isObject(angular.fromJson($cookies.ohioFiveAppCreds || ' '))) {
-        $scope.authorize.creds = angular.fromJson($cookies.ohioFiveAppCreds);
-        $scope.addMarker.authorize = true; //hide authentication field
-      }
-      */
+        $scope.authorize.creds = angular.fromJson($cookieStore.get('ohioFiveAppCreds'));
+        if ($scope.authorize.creds.hasOwnProperty('client_id')) {
+            $scope.addMarker.authorize = true; //hide authentication field
+            $scope.addMarker.showField = false;
+            console.log($scope.authorize.creds);
+          }
 }]);

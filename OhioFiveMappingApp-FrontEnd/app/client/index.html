@@ -33,8 +33,8 @@
     <script type="text/javascript" src="./js/auth.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <title> RC 0.03 </title>
 </head>
-
 <body ng-app="mapApp">
     <div id='mainCtrl' ng-controller="mainCtrl">
         <!-- Alert Box-->
@@ -42,26 +42,30 @@
             {{alertBox.msg}} <strong><button class="btn">X</button></strong>
         </div>
         <!-- Add Marker Form-->
-        <div id="markerMaker" ng-show="addMarker.create" class="panel panel-primary">
+        <div id="markerMaker" style="position:fixed; z-index:999; right:0px; top:5px;" ng-show="addMarker.create" class="panel panel-primary">
             <div class="panel-heading">
                 <h3 class="panel-title">Add Data</h3>
 
             </div>
             <div class="panel-body">
               <div ng-show="!addMarker.select==true && addMarker.authorize==true" class="list-group">
-  <a ng-click="addMarker.select=true;" class="list-group-item">
+  <a ng-click="addMarker.select=true;addMarker.kind='marker';" class="list-group-item">
     <h4 class="list-group-item-heading">Add Marker</h4>
-    <p class="list-group-item-text">Markers are used to repersent single points of data on the map.</p>
+    <p class="list-group-item-text">Markers are used to represent single points of data on the map.</p>
   </a>
-  <a ng-click="addMarker.select=true;" class="list-group-item">
+  <a ng-click="addMarker.select=true;addMarker.kind='layer';" class="list-group-item">
     <h4 class="list-group-item-heading">Add Layer</h4>
     <p class="list-group-item-text">Layers allow you to incliude KML, geoJSON or data from Open Street Map on your map</p>
+  </a>
+  <a ng-click="addMarker.select=true;addMarker.kind='map';" class="list-group-item">
+    <h4 class="list-group-item-heading">Add Map</h4>
+    <p class="list-group-item-text">Add another timemap from your Google Drive account to this timemap.</p>
   </a>
 </div>
 <div id="addMarker_auth" ng-show="!addMarker.authorize==true">
   <a ng-click="authorize.showField=true" href="{{authorize.url}}" target="_blank" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
 </div>
-<div ng-show="!addMarker.showField==true">
+<div ng-show="addMarker.showField==true">
   Insert the authentication code from Google here: <input type="input" style="width: 300px;" ng-model="authorize.key" /><button ng-click="authorizeUser()" class="btn btn-primary btn-xs">Next</button>
   {{authorize.msg}}
 </div>
@@ -91,20 +95,44 @@
                     </p>
                     <input type="checkbox" ng-model="addMarker.label.show" /> Label show
                     <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
-                    <p>Start:
-                        <input type="date" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required />, End:
-                        <input placeholder="yyyy-MM-dd" required type="date" ng-model="addMarker.endDate" />
-                    </p>
-                    Tags:
-                    <ul>
-                        <li ng-repeat="tag in addMarker.tags">{{tag}}</li>
-                    </ul>
-                    <input id="newTag" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
-                    <button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
                 </div>
+                <div id="timeAndDate" ng-show='addMarker.latlon || addMarker.td'>
+                  <p>Start:
+                      <input type="date" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required />, End:
+                      <input placeholder="yyyy-MM-dd" required type="date" ng-model="addMarker.endDate" />
+                  </p>
+                  Group<input type="text" ng-model="addMarker.group" />
+                  Tags:
+                  <ul>
+                      <li ng-repeat="tag in addMarker.tags">{{tag}}</li>
+                  </ul>
+                  <input id="newTag" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
+                  <button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
+                </div>
+              <div ng-show="addMarker.kind=='layer'">
+      <div id="uploadFile">
+        <button ng-click="addMarker.latlon=true;" class="btn btn-info">Place layer on map center</button>
 
+                  Upload:<input type="file" id="uploaderField">                <div class="btn-group">
+                    <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                      {{addMarker.format}}
+                      <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><input type="text" ng-model="addMarker.format" /></li>
+                      <li><button class="btn btn-link" ng-click="addMarker.format='TileJSON'">TileJSON</button></li>
+                      <li><button class="btn btn-link" ng-click="addMarker.format='geoJSON'">geoJSON</button></li>
+                      <li><button class="btn btn-link" ng-click="addMarker.format='KML'">KML</button></li>
+                      <li><button class="btn btn-link" ng-click="addMarker.format='KMLz'">KMLz</button></li>
+                      <li><a class="btn btn-link" href="//github.com/ZachPhillipsGary/Ohio-Five-Digital-Humanties-GIS-Timeline-Project/wiki/Getting-Started#adding-layers-to-a-map">Help</a></li>
+
+                     </ul>
+                   </div>
+
+                </div>
+              </div>
                 <hr>
-                <button ng-click="saveMarker()" class="btn btn-success">Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a>
+                <button ng-click="saveMarker()" class="btn btn-success" disable>Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a><a href="#" ng-click="resetMarkermodel()" class="btn btn-warning">Reset</a>
                 <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre> </div>
         </div>
       </div>
