@@ -1,5 +1,5 @@
 /// <reference path="../typings/jquery/jquery.d.ts"/>
-mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$cookieStore', function(VisDataSet, $scope, $http, $location,$cookieStore) {
+mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$cookieStore', function(VisDataSet, $scope, $http, $location, $cookieStore) {
     function invalidRow(num, col) {
         var row = num;
         $scope.alertBox.msg = "           Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
@@ -268,22 +268,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         mouseclickposition: {},
         projection: 'EPSG:4326'
     });
-    //get mouse over coords
-    $scope.$on('openlayers.map.pointermove', function(event, data) {
-        console.log(p[0], p[1]);
-        $scope.$apply(function() {
-            if ($scope.projection === data.projection) {
-                $scope.mouseposition = data.coord;
-            } else {
-                var p = ol.proj.transform([data.coord[0], data.coord[1]], data.projection, $scope.projection);
-                $scope.mouseposition = {
-                    lat: p[1],
-                    lon: p[0],
-                    projection: $scope.projection
-                }
-            }
-        });
-    });
     //for marker maker
     $scope.addTag = function() {
         var str = String($scope.addMarker.newTag);
@@ -303,8 +287,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     //groups are a many (items) to one (group) relationship
     $scope.visGroups = [];
     $scope.visItems = new vis.DataSet({});
-    //$scope.googleData = googleDataLoader.getData();
-    //update map center and zoom from URL
+    //object to hold google drive file metadata objects.
+    //
+    $scope.googleData = { sheets:[], files:[] }; //all file's in a user's drive
     var promise;
     $scope.$on("centerUrlHash", function(event, centerHash) {
         $location.search({
@@ -360,12 +345,13 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     });
     //set timeline properties based on changes from GUI. put in URL on screen change
     $scope.updateTimeline = function() {
+      console.log($scope.newLayer);
         var value = $scope.tmOpacity / 10;
         $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
     }
     // object to hold our auth keys for Google drive changes
     $scope.authorize = {
-        url: 'test',
+        url: '',
         msg: ''
     };
     //generate authentication keys for saving markers to Google Drive & store as cookie for future use
