@@ -140,7 +140,7 @@ function listFiles() {
  * @param {Function} callback Function to call when the request is complete.
  */
 function insertFile(fileData, callback) {
-    console.log(fileData);
+    console.log('filedata',fileData);
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
     const close_delim = "\r\n--" + boundary + "--";
@@ -186,7 +186,9 @@ function insertFile(fileData, callback) {
         console.log('complete');
     }
 }
-
+function saveisComplete(Googlereply) {
+  console.log(Googlereply || 'no reply');
+}
 function saveLayerFile() {
     var file = document.getElementById("uploaderField");
     insertFile(file.files[0], saveisComplete());
@@ -215,12 +217,26 @@ function findDatafile() {
                     "use": false,
                     "link": file.alternateLink
                 };
+                var scope = angular.element($("#mainCtrl")).scope(); // add to angular
+                var appFolderobj;
+                //check for OhioFiveApp folder, tell angular to make one if it doesn't export yet
+                if ((fileObject.fileName === 'OhioFiveApp') && (fileObject.type === 'application/vnd.google-apps.folder')){
+                   appFolderobj = fileObject;
+                }
                 fileSet.push(fileObject);
                 appendPre(file.title + ' (' + file.id + ')');
             }
-            var scope = angular.element($("#mainCtrl")).scope();
             scope.$apply(function() {
-                scope.googleDrivefiles.files = fileSet;
+                scope.googleData.files = fileSet;
+                  if (typeof appFolderobj === 'object') {
+                    scope.googleData.appFolder = appFolderobj || {};
+                    console.log(scope.googleData.appFolder);
+                  } else {
+                    console.log('no OhioFiveApp folder. Creating...');
+                    var newFolder = createPublicFolder('OhioFiveApp');
+                    console.log(newFolder);
+                  }
+
             });
         } else {
             appendPre('No files found.');

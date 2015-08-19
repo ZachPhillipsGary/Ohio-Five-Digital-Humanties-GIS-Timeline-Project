@@ -29,11 +29,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     $scope.addFolder = function() {
         createPublicFolder($scope.mapName);
     };
-    $scope.onFoldercreate = function(id) {
-
-
-    }
-
+  
     function isObject(val) {
         if (val === null) {
             return false;
@@ -291,6 +287,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     //
     $scope.googleData = { sheets:[], files:[] }; //all file's in a user's drive
     var promise;
+    console.log($scope.googleData.appFolder);
     $scope.$on("centerUrlHash", function(event, centerHash) {
         $location.search({
             c: centerHash,

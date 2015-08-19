@@ -5,8 +5,8 @@ Powered by expressjs
 // init express framework
 var express = require('express'),
     app = express();
-var cors = require('cors');
-var bodyParser = require('body-parser');
+var cors = require('cors'); // allow Cross-Domain Origin
+var bodyParser = require('body-parser'); // read json
 var Spreadsheet = require('edit-google-spreadsheet');
 var google = require('googleapis');
 app.use(bodyParser.json());
@@ -22,7 +22,7 @@ var CLIENT_SECRET = 'VFvrYGnHGsKxZOMpwh64rJZG';
 var PERMISSION_SCOPE = 'https://spreadsheets.google.com/feeds'; //space-delimited string or an array of scopes
 var OAuth2Client = google.auth.OAuth2;
 var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, 'urn:ietf:wg:oauth:2.0:oob');
-//use jade to serve html files
+//use jade to serve static html files
 app.set('view engine', 'jade');
 // CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
 app.all('*', function(req, res, next) {

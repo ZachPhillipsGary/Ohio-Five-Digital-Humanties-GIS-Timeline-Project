@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <script src="http://cdn.rightjs.org/right-2.3.0.js"></script>
     <script src="./js/resize.js"></script>
@@ -36,7 +35,7 @@
     <script type="text/javascript" src="./js/auth.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <title> RC 0.03 </title>
+    <title> Beta Release Candidate  </title>
 </head>
 
 <body ng-app="mapApp">
@@ -69,13 +68,13 @@
                 <div id="addMarker_auth" ng-show="!addMarker.authorize==true">
                     <a href="{{authorize.url}}" target="_blank" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
                     <br> Insert the authentication code from Google here:
-                    <br>
+                    Upload Layer
                     <input type="input" style="width: 100px;" ng-model="authorize.key" />
                     <button ng-click="authorizeUser()" class="btn btn-primary btn-xs">Next</button>
                     {{authorize.msg}}
                 </div>
                 <div ng-show="addMarker.select==true && addMarker.authorize==true">
-                    <div class="container">,
+                    <div class="container">
                         <div class="panel-group" id="accordion">
                             <div class="panel panel-default">
                                 <div class="panel-heading">
@@ -95,7 +94,7 @@
                                     </div>
                                     <div id="geoCode" ng-show="addMarker.geoCode"> Address
                                         <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address" />
-                                        <div style="display:none;" <br><a href="#">Geocoding Key</a>
+                                        <div style="display:none;" Upload Layer<a href="#">Geocoding Key</a>
                                             <input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey" />
                                         </div>
                                         <button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address</button>
@@ -174,8 +173,7 @@
                                         <div ng-show="addMarker.kind=='layer'">
                                             Upload Layer File
                                             <div id="uploadFile">
-                                                <br/>
-                                                <hr> Upload:
+                                            Upload:
                                                 <input type="file" id="uploaderField"><button class="btn btn-default btn-sm" onClick="saveLayerFile()">Save</button> or url
                                                 <input type="text" id="url" ng-model="addMarker.url">
                                                 <div class="btn-group">
@@ -209,7 +207,7 @@
                                         </div>
                                         <div ng-show="addMarker.kind=='marker'">
                                             Upload custom marker image (optional):
-                                            <input type="file" id="uploaderField">
+                                            <input type="file" id="uploaderFieldMarker">
                                         </div>
                                     </div>
                                 </div>
