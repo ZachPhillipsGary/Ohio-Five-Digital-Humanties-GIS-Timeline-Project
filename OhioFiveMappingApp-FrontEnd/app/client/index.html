@@ -170,45 +170,48 @@
                                 </div>
                                 <div id="collapse4" class="panel-collapse collapse">
                                     <div class="panel-body">
-                                        <div ng-show="addMarker.kind=='layer'">
-                                            Upload Layer File
-                                            <div id="uploadFile">
-                                            Upload:
-                                                <input type="file" id="uploaderField"><button class="btn btn-default btn-sm" onClick="saveLayerFile()">Save</button> or url
-                                                <input type="text" id="url" ng-model="addMarker.url">
-                                                <div class="btn-group">
-                                                    <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                      {{addMarker.format}}
-                      <span class="caret"></span>
-                    </a>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <input type="text" ng-model="addMarker.format" />
-                                                        </li>
-                                                        <li>
-                                                            <button class="btn btn-link" ng-click="addMarker.format='TileJSON'">TileJSON</button>
-                                                        </li>
-                                                        <li>
-                                                            <button class="btn btn-link" ng-click="addMarker.format='geoJSON'">geoJSON</button>
-                                                        </li>
-                                                        <li>
-                                                            <button class="btn btn-link" ng-click="addMarker.format='KML'">KML</button>
-                                                        </li>
-                                                        <li>
-                                                            <button class="btn btn-link" ng-click="addMarker.format='KMLz'">KMLz</button>
-                                                        </li>
-                                                        <li><a class="btn btn-link" href="//github.com/ZachPhillipsGary/Ohio-Five-Digital-Humanties-GIS-Timeline-Project/wiki/Getting-Started#adding-layers-to-a-map">Help</a>
-                                                        </li>
+                                        <div id="uploadForm">
+                                          <div ng-show="addMarker.type == 'marker'">
+                                          Replace the default marker icon with a design of your own. Select an existing image file from your Google Drive account or upload a new one using the dropdown below.
+                                          </div>
+                                          <div ng-show="addMarker.type == 'marker'">
+                                            Select a layer format using the dropdown and upload the file to your Google Drive account using the dropdown below.
+                                            <div class="btn-group">
+                                                <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  {{addMarker.format}}
+                  <span class="caret"></span>
+                </a>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <input type="text" ng-model="addMarker.format" />
+                                                    </li>
+                                                    <li>
+                                                        <button class="btn btn-link" ng-click="addMarker.format='TileJSON'">TileJSON</button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="btn btn-link" ng-click="addMarker.format='geoJSON'">geoJSON</button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="btn btn-link" ng-click="addMarker.format='KML'">KML</button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="btn btn-link" ng-click="addMarker.format='KMLz'">KMLz</button>
+                                                    </li>
+                                                    <li><a class="btn btn-link" href="//github.com/ZachPhillipsGary/Ohio-Five-Digital-Humanties-GIS-Timeline-Project/wiki/Getting-Started#adding-layers-to-a-map">Help</a>
+                                                    </li>
 
-                                                    </ul>
-                                                </div>
+                                                </ul>
+                                            </div>
+                                          </div>
+                                            <div id="uploadFile">
+                                            Upload :
+                                                <input type="file" id="uploaderField"><button class="btn btn-default btn-xs" id="saveBtn" data-container="body" data-toggle="popover" data-placement="bottom" data-content="" data-original-title="" title="" aria-describedby="popover764517" onClick="saveLayerFile()">Save file to Google Drive</button> <br>or insert url:
+                                                <input type="text" id="url" ng-model="addMarker.url">
+
 
                                             </div>
                                         </div>
-                                        <div ng-show="addMarker.kind=='marker'">
-                                            Upload custom marker image (optional):
-                                            <input type="file" id="uploaderFieldMarker">
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -319,8 +322,8 @@
             </div>
             <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
             <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="true">
-                <ol-layer ng-if="addMarker.format=='OSM'" ol-layer-properties="mapquest"></ol-layer>
-                <!-- load all data layers into map-->
+
+                <!-- load all data layers into map -->
                 <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
                 <!-- load all data markers into map -->
                 <ol-marker ng-repeat="item in olMarkers" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>

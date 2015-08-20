@@ -1,5 +1,5 @@
 // Developer Console, https://console.developers.google.com
-var CLIENT_ID = "447842114622-6mlv0teo6gs76dqmon49q36kr40gm08c.apps.googleusercontent.com";
+var CLIENT_ID = "158993334098-frmgia8rfgb5e5dgcidea9hk85ggvgtd.apps.googleusercontent.com";
 
 var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
 var SCOPES = ['https://www.googleapis.com/auth/drive'];
@@ -137,9 +137,10 @@ function listFiles() {
  * Insert new file.
  *
  * @param {File} fileData File object to read data from.
+ * @param {string} folder
  * @param {Function} callback Function to call when the request is complete.
  */
-function insertFile(fileData, callback) {
+function insertFile(fileData, folder, callback) {
     console.log('filedata',fileData);
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
@@ -150,8 +151,12 @@ function insertFile(fileData, callback) {
     reader.onload = function(e) {
         var contentType = fileData.type || 'application/octet-stream';
         var metadata = {
-            'title': fileData.fileName,
-            'mimeType': contentType
+            'title': fileData.fileName || 'OhioFiveApp_Layer_'+String(Math.random()*33),
+            'mimeType': contentType,
+            "parents": [{
+            "kind": "drive#fileLink",
+            "id":  folder || ''
+            }]
         };
 
         var base64Data = btoa(reader.result);
@@ -180,21 +185,43 @@ function insertFile(fileData, callback) {
         if (!callback) {
             callback = function(file) {
                 console.log(file);
+                console.log();
+                var ghosturl = 'http://googledrive.com/host/';
+                ghosturl += folder;
+                ghosturl += '/';
+                ghosturl += file.title;
+                var scope = angular.element($("#mainCtrl")).scope(); // add to angular
+                scope.$apply(function() {
+                scope.addMarker.url = ghosturl || file.error;
+                //bad authentication key, reset cookie
+                if (!file.webContentLink) {
+                  scope.deleteCookie();
+                }
+                });
             };
         }
         request.execute(callback);
         console.log('complete');
     }
 }
+/*
+
+*/
 function saveisComplete(Googlereply) {
-  console.log(Googlereply || 'no reply');
+  console.log(Googlereply);
+
+
+  //document.getElementById("saveBtn").setAttribute("class", "democlass");
+  //sdocument.getElementById("saveBtn").disabled = true;
 }
 function saveLayerFile() {
     var file = document.getElementById("uploaderField");
-    insertFile(file.files[0], saveisComplete());
+    var scope = angular.element($("#mainCtrl")).scope(); // add to angular
+    insertFile(file.files[0],scope.googleData.appFolder.id,saveisComplete());
 }
 /**
- * Print files.
+ * Loads metadata for all files from the folder OhioFiveApp into $scope.googleData.appFolder. If
+ * OhioFiveApp does not exist, calls function createPublicFolder to make folder
  */
 function findDatafile() {
     var request = gapi.client.drive.files.list({
@@ -219,7 +246,7 @@ function findDatafile() {
                 };
                 var scope = angular.element($("#mainCtrl")).scope(); // add to angular
                 var appFolderobj;
-                //check for OhioFiveApp folder, tell angular to make one if it doesn't export yet
+                //check for OhioFiveApp folder,  make one if it doesn't export yet
                 if ((fileObject.fileName === 'OhioFiveApp') && (fileObject.type === 'application/vnd.google-apps.folder')){
                    appFolderobj = fileObject;
                 }
@@ -252,7 +279,7 @@ function findDatafile() {
  * @param {string} message Text to be placed in pre element.
  */
 function appendPre(message) {
-    var pre = document.getElementById('output');
-    var textContent = document.createTextNode(message + '\n');
-    pre.appendChild(textContent);
+  //  var pre = document.getElementById('output');
+  //  var textContent = document.createTextNode(message + '\n');
+  //  pre.appendChild(textContent);
 }

@@ -17,8 +17,8 @@ serve files in "client" directory to users
 app.use(express.static('client'));
 
 //oauth2 keys && key globals
-var CLIENT_ID = '447842114622-d8olefdjlfptc8qrv2u43r2h2se8dj89.apps.googleusercontent.com';
-var CLIENT_SECRET = 'VFvrYGnHGsKxZOMpwh64rJZG';
+var CLIENT_ID = '158993334098-9mighdbu51ghp33g8ihigcok05gikmpg.apps.googleusercontent.com';
+var CLIENT_SECRET = 'glTMKCAyuu1EVvGFjcB6jDWh';
 var PERMISSION_SCOPE = 'https://spreadsheets.google.com/feeds'; //space-delimited string or an array of scopes
 var OAuth2Client = google.auth.OAuth2;
 var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, 'urn:ietf:wg:oauth:2.0:oob');
@@ -40,6 +40,7 @@ app.get('/', function(req, res) {
 });
 /*
 authentication -- generate oauth2 Credentials for user
+example:
 {
     "client_id": "447842114622-d8olefdjlfptc8qrv2u43r2h2se8dj89.apps.googleusercontent.com",
     "client_secret": "VFvrYGnHGsKxZOMpwh64rJZG",
@@ -53,6 +54,11 @@ app.get('/auth', function(req, res) {
     scope: PERMISSION_SCOPE
   });
   res.send(url);
+});
+app.get('/geoJson.json', function(req, res) {
+  // KML
+var geoJson = {};
+  res.send(geoJson);
 });
 app.post('/auth', function(req, res) {
     var code;
@@ -96,39 +102,41 @@ app.post('/add', function(req, res) {
             oauth2: req.body.authentication || {}
 
         }, function sheetReady(err, spreadsheet) {
-            if (err) throw err;
+            if (err) res.send(err);
             spreadsheet.receive(function(err, rows, info) {
-      if(err) throw err;
+      if(err) res.send(err);
       console.log("Found rows:", rows);
       var rowsLength = Object.keys(rows).length;
       var rowObject = {};
+      console.log(req.body.marker);
             var row = {
-                  1: String(req.body.marker.kind) || '',
-                  2: String(req.body.marker.group) || '',
-                  3: String(req.body.marker.lat) || '',
-                  4: String(req.body.marker.lon) || '',
-                  5: String(req.body.marker.label.message) || String(req.body.marker.label.url),
-                  6: String(req.body.marker.startDate) || '',
-                  7: String(req.body.marker.endDate) || '',
+                  1: String(req.body.marker.kind) || 'marker',
+                  2: String(req.body.marker.group) || 'invalid',
+                  3: String(req.body.marker.lat) || 'invalid',
+                  4: String(req.body.marker.lon) || 'invalid',
+                  6: String(req.body.marker.startDate) || 'invalid',
+                  7: String(req.body.marker.endDate) || 'invalid',
                   8: tagsToString(req.body.marker.tags || []),
-                  9: String(req.body.marker.kind) || ''
+                  9: String(req.body.marker.format) || 'invalid'
               };
+              if(req.body.marker.kind === 'layer') {
+                row[5] = String(req.body.marker.url);
+                console.log(req.body.marker.url)
+              } else if (req.body.marker.kind === 'marker'){
+                 row[5] = String(req.body.marker.label.message);
+              } else {
+                row[5] = String(req.body.marker.label.message) || String(req.body.marker.label.url);
+              }
               rowObject[rowsLength+1] = row;
               console.log('row',rowObject);
             spreadsheet.add(rowObject);
       spreadsheet.send(function(err) {
-          if (err) throw err;
+          if (err) res.send(err);
       });
       console.log("Updated! ");
       // Found rows: { '3': { '5': 'hello!' } }
       });
-            spreadsheet.metadata(function(err, metadata) {
-                if (err) throw err;
-                var newRow = metadata.rowCount + 1;
-                console.log(newRow);
 
-                // { title: 'Sheet3', rowCount: '100', colCount: '20', updated: [Date] }
-            });
 
         });
     } else {

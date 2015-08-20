@@ -29,7 +29,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     $scope.addFolder = function() {
         createPublicFolder($scope.mapName);
     };
-  
+
     function isObject(val) {
         if (val === null) {
             return false;
@@ -224,6 +224,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     }
     //center map on wooster if nothing else is selected
     angular.extend($scope, {
+
+
+
         wooster: {
             lat: 40.8092,
             lon: 81.9372,
@@ -435,6 +438,14 @@ console.log('test');
             reportError('Could not load data from source:' + String(data));
         });
     };
+    $scope.onuploadComplete = function (reply){
+      console.log(reply);
+    }
+    $scope.uploadFile = function() {
+      var file = document.getElementById("uploaderField");
+      insertFile(file.files[0] || NULL, $scope. $scope.onuploadComplete());
+      console.log('saving');
+    }
     /*
     Loads selected google drive file onto Map
     */
@@ -673,7 +684,12 @@ console.log('test');
             //alert('Right click!');
             props.event.preventDefault();
         };
-
+        $scope.deleteCookie = function() {
+          $cookieStore.remove('ohioFiveAppCreds');
+          //reset authorization state
+          $scope.addMarker.authorize = false;
+          console.log('erased cookie');
+        }
         $scope.events = {
             rangechange: $scope.onRangeChange,
             rangechanged: $scope.onRangeChange,
@@ -704,6 +720,7 @@ console.log('test');
     //check for stored Credentials
         $scope.authorize.creds = angular.fromJson($cookieStore.get('ohioFiveAppCreds')) || {};
         if ($scope.authorize.creds.hasOwnProperty('client_id')) {
+          console.log($cookieStore.get('ohioFiveAppCreds'));
             $scope.addMarker.authorize = true; //hide authentication field
             $scope.addMarker.showField = false;
           }
