@@ -184,12 +184,11 @@ function insertFile(fileData, folder, callback) {
         });
         if (!callback) {
             callback = function(file) {
-                console.log(file);
-                console.log();
+                //create the publicly accessible url for the uploaded document
                 var ghosturl = 'http://googledrive.com/host/';
-                ghosturl += folder;
+                ghosturl += folder; //the current user's OhioFiveApp folder
                 ghosturl += '/';
-                ghosturl += file.title;
+                ghosturl += file.title; // name of the file.
                 var scope = angular.element($("#mainCtrl")).scope(); // add to angular
                 scope.$apply(function() {
                 scope.addMarker.url = ghosturl || file.error;
