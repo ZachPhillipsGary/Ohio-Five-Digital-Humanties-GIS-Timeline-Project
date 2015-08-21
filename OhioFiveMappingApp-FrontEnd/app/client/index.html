@@ -72,7 +72,7 @@
                 </div>
                 <div id="addMarker_auth" ng-show="!addMarker.authorize==true">
                     <a href="{{authorize.url}}" target="_blank" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
-                    <br> Insert the authentication code from Google here: Upload Layer
+                    <br> Insert the authentication code from Google here:
                     <input type="input" style="width: 100px;" ng-model="authorize.key" />
                     <button ng-click="authorizeUser()" class="btn btn-primary btn-xs">Next</button>
                     {{authorize.msg}}
@@ -370,12 +370,11 @@
             </isteven-multi-select>
         </div>
         <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
-        <openlayers ol-center="wooster" width="100%" height="100vh" custom-layers="true">
-
+        <openlayers layers="defaultLayer" ol-center="wooster" width="100%" height="100vh" custom-layers="true">
             <!-- load all data layers into map -->
             <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
             <!-- load all data markers into map -->
-            <ol-marker ng-repeat="item in olMarkers" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
+            <ol-marker ng-repeat="item in olMarkers" ol-style="item.style" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
             <!-- dummy new marker -->
             <ol-marker ng-if="addMarker.create && addMarker.kind=='marker'" ol-marker-properties="addMarker"></ol-marker>
             <ol-layer ng-if="addMarker.create && addMarker.kind=='layer'" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"> ></ol-layer>

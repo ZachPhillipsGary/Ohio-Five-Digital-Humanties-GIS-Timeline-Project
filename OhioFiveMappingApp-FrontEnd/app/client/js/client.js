@@ -307,7 +307,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     $scope.$on('visTimelineChange', function(event, args) {
         console.log($scope.olMarkers);
         var visibleItems = args.objects;
-        console.log('visibleItems', visibleItems, '$scope.olMarkers', $scope.olMarkers, 'hiddenVisObj', $scope.hiddenVisObj);
+        console.log('visibleItems', visibleItems, '$scope.olMarkers', $scope.olMarkers, '$scope.olLayers', $scope.olLayers, 'hiddenVisObj', $scope.hiddenVisObj);
         //filter markers by visibility
         for (var i = 0; i < $scope.olMarkers.length; i++) {
             if (!(visibleItems.contains($scope.olMarkers[i].id))) {
@@ -320,7 +320,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }
         for (var i = 0; i < $scope.olLayers.length; i++) {
             if (!(visibleItems.contains($scope.olLayers[i].id))) {
-                $scope.olMarkers[i].hiddenbyTimeline = true;
+                $scope.olLayers[i].hiddenbyTimeline = true;
                 $scope.hiddenVisObj.layers.push($scope.olLayers[i]);
                 $scope.olLayers.splice(i, 1);
             } else {
@@ -472,16 +472,10 @@ console.log('test');
     };
 
     $scope.geoCode = function() {
+          var urlString;
         if ($scope.addMarker.hasOwnProperty('address')) {
-            var addressArray = $scope.addMarker.address.split(',');
-            if (addressArray.length < 2) {
-                reportError('Invalid Address!');
-            } else {
-                var street = addressArray[0].split(' ').join('+');
-                var city = addressArray[1].split(' ').join('+');
-                var region = addressArray[1].split(' ').join('+');
-                var urlString = "http://api.opencagedata.com/geocode/v1/json?query=" + street + ",+" + city + region + ",+USA&key=" + $scope.addMarker.geoCodekey;
-            }
+            urlString = "http://api.opencagedata.com/geocode/v1/json?query="+$scope.addMarker.address+"&key=" + $scope.addMarker.geoCodekey;
+
             $http.get(urlString).success(function(data) {
                 console.log(data);
                 $scope.addMarker.result = true; // we have something to show
@@ -531,6 +525,8 @@ console.log('test');
             if (markers[i].kind === 'marker') {
                 var marker = {
                     "id": i + 1,
+                    style: {},
+                    "hiddenbyTimeline": false,
                     "tags": markers[i].tags || [],
                     "lat": parseFloat(markers[i].lat),
                     "lon": parseFloat(markers[i].lng),
@@ -540,6 +536,7 @@ console.log('test');
             } else if (markers[i].kind === 'layer') {
                 var layer = {
                     "id": i + 1,
+                    "hiddenbyTimeline": false,
                     "tags": markers[i].tags || [],
                     "dataType": markers[i].format,
                     "lat": markers[i].lat,
@@ -600,7 +597,16 @@ console.log('test');
             selectable: [false, false],
             editable: [false, false]
         };
-
+        $scope.defaultLayer = {
+            main: {
+                type: "tile",
+                source: {
+                    type: "OSM",
+                    url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }
+            }
+        };
         var options = {
             align: 'center', // left | right (String)
             autoResize: true, // false (Boolean)

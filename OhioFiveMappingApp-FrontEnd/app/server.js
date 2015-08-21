@@ -16,7 +16,7 @@ serve files in "client" directory to users
 */
 app.use(express.static('client'));
 
-//oauth2 keys && key globals
+//oauth2 keys && key globals for Google Drive
 var CLIENT_ID = '158993334098-9mighdbu51ghp33g8ihigcok05gikmpg.apps.googleusercontent.com';
 var CLIENT_SECRET = 'glTMKCAyuu1EVvGFjcB6jDWh';
 var PERMISSION_SCOPE = 'https://spreadsheets.google.com/feeds'; //space-delimited string or an array of scopes
@@ -24,7 +24,7 @@ var OAuth2Client = google.auth.OAuth2;
 var oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, 'urn:ietf:wg:oauth:2.0:oob');
 //use jade to serve static html files
 app.set('view engine', 'jade');
-// CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
+// CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests.
 app.all('*', function(req, res, next) {
        res.header("Access-Control-Allow-Origin", "*");
        res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -54,11 +54,6 @@ app.get('/auth', function(req, res) {
     scope: PERMISSION_SCOPE
   });
   res.send(url);
-});
-app.get('/geoJson.json', function(req, res) {
-  // KML
-var geoJson = {};
-  res.send(geoJson);
 });
 app.post('/auth', function(req, res) {
     var code;
