@@ -214,7 +214,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
                     }
                 }
             }
-
+            $scope.$apply(); //update map
         }
         /* toDate({}) converts object to js date */
     function toDate(obj) {
@@ -224,9 +224,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     }
     //center map on wooster if nothing else is selected
     angular.extend($scope, {
-
-
-
         wooster: {
             lat: 40.8092,
             lon: 81.9372,
@@ -234,18 +231,19 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             zoom: 4,
             centerUrlHash: true
         },
+        //dummy object for new row creation
         addMarker: {
-            url: '',
-            kind: '',
-            geoCode: false,
-            latlon: false,
-            geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
+            url: '', // location of layer file
+            kind: '', // map, marker or layer?
+            geoCode: false, // geocoded address
+            latlon: false, // latitude and longitude stored in object?
+            geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',  //geocoding api access key
             lat: 40.8092,
             lon: 81.9372,
-            geoCoderesults: [],
-            group: '',
+            geoCoderesults: [], //top results from geocoding query
+            group: '', //row group
             startDate: '',
-            showField: false,
+            showField: false, // for debgging
             endDate: '',
             format: 'select file format',
             getAddressby: '',
@@ -304,8 +302,16 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         $scope.addMarker.lon = Number(latlon[1]);
       }
     });
+    /*
+     * visTimelineChange
+    * This event is called by angular-visjs directive whenever the timeline state changes (a user zooms in or out or goes forward or back in time)
+    * @param {event} (the event object)
+    * @param {args} javascript object containg event particulars
+    args: {
+      objects:[]
+    }
+    */
     $scope.$on('visTimelineChange', function(event, args) {
-        console.log($scope.olMarkers);
         var visibleItems = args.objects;
         console.log('visibleItems', visibleItems, '$scope.olMarkers', $scope.olMarkers, '$scope.olLayers', $scope.olLayers, 'hiddenVisObj', $scope.hiddenVisObj);
         //filter markers by visibility
@@ -582,6 +588,21 @@ console.log('test');
     };
 
     $scope.initTimeline = function() {
+        angular.extend($scope, {
+    olDefaults: {
+        layer: {
+            url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
+        },
+        map: {
+            scrollWheelZoom: false
+        },
+        controls: {
+            zoom: {
+                position: 'topright'
+            }
+        }
+   }
+});
         $scope.logs = {};
         $scope.defaults = {
             orientation: ['top', 'bottom'],
@@ -612,8 +633,8 @@ console.log('test');
             autoResize: true, // false (Boolean)
             editable: false,
             selectable: false,
-            // start: null,
-            // end: null,
+             start: null,
+             end: null,
             height: '100%',
             width: '100%',
             margin: {

@@ -368,9 +368,13 @@
         <div ng-show='filters.length > 0' id="filtersComponent">
             <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="name" item-label="name" tick-property="ticked" on-close="filterData()" data-toggle="dropdown">
             </isteven-multi-select>
+            <ol>
+            <li ng-repeat="item in olLayers">{{item.dataType}}"{{item.dataURL}}</li>
+            <li ng-repeat="item in olMarkers">{{item.style}} {{item.name}}</li>
+            </ol>
         </div>
         <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
-        <openlayers layers="defaultLayer" ol-center="wooster" width="100%" height="100vh" custom-layers="true">
+        <openlayers defaults="olDefaults" ol-center="wooster" width="100%" height="100vh" custom-layers="false">
             <!-- load all data layers into map -->
             <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
             <!-- load all data markers into map -->
