@@ -2,6 +2,10 @@
     font-family: wooFont;
     src: url('Wooster.ttf');
 }
+.scrollBox {
+  height:100px;
+  overflow-y: scroll; 
+}
 .vis-background {
   display:none;
 }

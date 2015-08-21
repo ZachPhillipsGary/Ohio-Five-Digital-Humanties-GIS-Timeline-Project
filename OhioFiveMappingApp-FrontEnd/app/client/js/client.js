@@ -7,6 +7,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     }
     $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
+    $scope.urlDates = {};
     $scope.alertBox = {};
     $scope.hiddenVisObj = {
         layers: [],
@@ -141,12 +142,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
 
     }
     $scope.selectGeoCodeItem = function(item) {
-        console.log(item);
-        $scope.addMarker.lat = item.geometry.lat;
-        $scope.addMarker.lon = item.geometry.lng;
-        $scope.addMarker.latlon = true;
-    }
-    //POST marker data and authentication keys to server
+            console.log(item);
+            $scope.addMarker.lat = item.geometry.lat;
+            $scope.addMarker.lon = item.geometry.lng;
+            $scope.addMarker.latlon = true;
+        }
+        //POST marker data and authentication keys to server
     $scope.saveMarker = function() {
         $http.post('/add', {
             marker: $scope.addMarker,
@@ -165,32 +166,32 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         });
     }
     $scope.resetMarkermodel = function() {
-      var check = confirm('Reset '+$scope.addMarker.kind+'?');
-      if (check)
-      $scope.addMarker = {
-          url: '',
-          kind: '',
-          geoCode: false,
-          latlon: false,
-          geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
-          lat: 40.8092,
-          lon: 81.9372,
-          geoCoderesults: [],
-          group: '',
-          startDate: '',
-          showField: false,
-          endDate: '',
-          format: 'select file format',
-          getAddressby: '',
-          create: false, //do not show ui unless adding item
-          label: {
-              message: 'Test label',
-              show: true,
-              showOnMouseOver: true
-          },
-          tags: [],
-          group: ''
-      };
+        var check = confirm('Reset ' + $scope.addMarker.kind + '?');
+        if (check)
+            $scope.addMarker = {
+                url: '',
+                kind: '',
+                geoCode: false,
+                latlon: false,
+                geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',
+                lat: 40.8092,
+                lon: 81.9372,
+                geoCoderesults: [],
+                group: '',
+                startDate: '',
+                showField: false,
+                endDate: '',
+                format: 'select file format',
+                getAddressby: '',
+                create: false, //do not show ui unless adding item
+                label: {
+                    message: 'Test label',
+                    show: true,
+                    showOnMouseOver: true
+                },
+                tags: [],
+                group: ''
+            };
 
     }
     $scope.filterData = function() {
@@ -237,7 +238,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             kind: '', // map, marker or layer?
             geoCode: false, // geocoded address
             latlon: false, // latitude and longitude stored in object?
-            geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7',  //geocoding api access key
+            geoCodekey: 'd766bef0eb2632769bfcff5d5b93c5b7', //geocoding api access key
             lat: 40.8092,
             lon: 81.9372,
             geoCoderesults: [], //top results from geocoding query
@@ -286,7 +287,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     $scope.visItems = new vis.DataSet({});
     //object to hold google drive file metadata objects.
     //
-    $scope.googleData = { sheets:[], files:[] }; //all file's in a user's drive
+    $scope.googleData = {
+        sheets: [],
+        files: []
+    }; //all file's in a user's drive
     var promise;
     console.log($scope.googleData.appFolder);
     $scope.$on("centerUrlHash", function(event, centerHash) {
@@ -296,11 +300,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             o: $scope.tmOpacity || 0.4
         });
         //update Add Point coords
-        if($scope.addMarker.latlon == true) {
-        var latlon = centerHash.split(':');
-        $scope.addMarker.lat = Number(latlon[0]);
-        $scope.addMarker.lon = Number(latlon[1]);
-      }
+        if ($scope.addMarker.latlon == true) {
+            var latlon = centerHash.split(':');
+            $scope.addMarker.lat = Number(latlon[0]);
+            $scope.addMarker.lon = Number(latlon[1]);
+        }
     });
     /*
      * visTimelineChange
@@ -351,11 +355,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     });
     //set timeline properties based on changes from GUI. put in URL on screen change
     $scope.updateTimeline = function() {
-      console.log($scope.newLayer);
-        var value = $scope.tmOpacity / 10;
-        $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
-    }
-    // object to hold our auth keys for Google drive changes
+            console.log($scope.newLayer);
+            var value = $scope.tmOpacity / 10;
+            $("#timelineContainer").css('background-color', 'rgba(255,255,255,' + value + ')');
+        }
+        // object to hold our auth keys for Google drive changes
     $scope.authorize = {
         url: '',
         msg: ''
@@ -371,7 +375,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
                 if (response.hasOwnProperty('data')) {
                     $scope.authorize.creds = response.data || {};
                     console.log($scope.authorize.creds);
-                    $cookieStore.put('ohioFiveAppCreds',angular.toJson($scope.authorize.creds));
+                    $cookieStore.put('ohioFiveAppCreds', angular.toJson($scope.authorize.creds));
                     $scope.addMarker.authorize = false;
                     $scope.addMarker.showField = false;
                     $scope.addMarker.authorize = true;
@@ -387,19 +391,19 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }
     }
     $scope.toggleMapQuestLayer = function() {
-      if($scope.addMarker.format=='OSM') {
-      angular.extend($scope, {
-                      mapquest: {
-                          source: {
-                              type: 'MapQuest',
-                              layer: 'sat'
-                          }
-                      }
-                  });
-                } else {
-                  $scope.mapquest = {};
+        if ($scope.addMarker.format == 'OSM') {
+            angular.extend($scope, {
+                mapquest: {
+                    source: {
+                        type: 'MapQuest',
+                        layer: 'sat'
+                    }
                 }
-console.log('test');
+            });
+        } else {
+            $scope.mapquest = {};
+        }
+        console.log('test');
     };
     $scope.loadGoogleMapsData = function(url) {
         //get authorize url for adding or remving data
@@ -444,17 +448,17 @@ console.log('test');
             reportError('Could not load data from source:' + String(data));
         });
     };
-    $scope.onuploadComplete = function (reply){
-      console.log(reply);
+    $scope.onuploadComplete = function(reply) {
+        console.log(reply);
     }
     $scope.uploadFile = function() {
-      var file = document.getElementById("uploaderField");
-      insertFile(file.files[0] || NULL, $scope. $scope.onuploadComplete());
-      console.log('saving');
-    }
-    /*
-    Loads selected google drive file onto Map
-    */
+            var file = document.getElementById("uploaderField");
+            insertFile(file.files[0] || NULL, $scope.$scope.onuploadComplete());
+            console.log('saving');
+        }
+        /*
+        Loads selected google drive file onto Map
+        */
     $scope.addLayer = function(gmapItem) {
         console.log('input:', gmapItem);
         //are we getting a dropdown object or key string?
@@ -478,9 +482,9 @@ console.log('test');
     };
 
     $scope.geoCode = function() {
-          var urlString;
+        var urlString;
         if ($scope.addMarker.hasOwnProperty('address')) {
-            urlString = "http://api.opencagedata.com/geocode/v1/json?query="+$scope.addMarker.address+"&key=" + $scope.addMarker.geoCodekey;
+            urlString = "http://api.opencagedata.com/geocode/v1/json?query=" + $scope.addMarker.address + "&key=" + $scope.addMarker.geoCodekey;
 
             $http.get(urlString).success(function(data) {
                 console.log(data);
@@ -589,20 +593,20 @@ console.log('test');
 
     $scope.initTimeline = function() {
         angular.extend($scope, {
-    olDefaults: {
-        layer: {
-            url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
-        },
-        map: {
-            scrollWheelZoom: false
-        },
-        controls: {
-            zoom: {
-                position: 'topright'
+            olDefaults: {
+                layer: {
+                    url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
+                },
+                map: {
+                    scrollWheelZoom: false
+                },
+                controls: {
+                    zoom: {
+                        position: 'topright'
+                    }
+                }
             }
-        }
-   }
-});
+        });
         $scope.logs = {};
         $scope.defaults = {
             orientation: ['top', 'bottom'],
@@ -618,23 +622,13 @@ console.log('test');
             selectable: [false, false],
             editable: [false, false]
         };
-        $scope.defaultLayer = {
-            main: {
-                type: "tile",
-                source: {
-                    type: "OSM",
-                    url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }
-            }
-        };
         var options = {
             align: 'center', // left | right (String)
             autoResize: true, // false (Boolean)
             editable: false,
             selectable: false,
-             start: null,
-             end: null,
+            start: $scope.urlDates.start || null,
+            end: $scope.urlDates.end || null,
             height: '100%',
             width: '100%',
             margin: {
@@ -712,10 +706,10 @@ console.log('test');
             props.event.preventDefault();
         };
         $scope.deleteCookie = function() {
-          $cookieStore.remove('ohioFiveAppCreds');
-          //reset authorization state
-          $scope.addMarker.authorize = false;
-          console.log('erased cookie');
+            $cookieStore.remove('ohioFiveAppCreds');
+            //reset authorization state
+            $scope.addMarker.authorize = false;
+            console.log('erased cookie');
         }
         $scope.events = {
             rangechange: $scope.onRangeChange,
@@ -738,6 +732,13 @@ console.log('test');
     var mapPaths = $location.search();
     if ((mapPaths.hasOwnProperty('m')) && (mapPaths.m != 'nokey')) {
         console.log('LOADING', mapPaths.m);
+        //set intital date range
+        if (mapPaths.hasOwnProperty('st')) {
+            $scope.urlDates.start = new Date(mapPaths.st);
+        }
+        if (mapPaths.hasOwnProperty('et')) {
+            $scope.urlDates.end = new Date(mapPaths.et);
+        }
         if (mapPaths.m.length > 1) {
             $scope.addLayer(mapPaths.m);
         }
@@ -745,10 +746,10 @@ console.log('test');
         $('#adminCtrl').modal('show');
     }
     //check for stored Credentials
-        $scope.authorize.creds = angular.fromJson($cookieStore.get('ohioFiveAppCreds')) || {};
-        if ($scope.authorize.creds.hasOwnProperty('client_id')) {
-          console.log($cookieStore.get('ohioFiveAppCreds'));
-            $scope.addMarker.authorize = true; //hide authentication field
-            $scope.addMarker.showField = false;
-          }
+    $scope.authorize.creds = angular.fromJson($cookieStore.get('ohioFiveAppCreds')) || {};
+    if ($scope.authorize.creds.hasOwnProperty('client_id')) {
+        console.log($cookieStore.get('ohioFiveAppCreds'));
+        $scope.addMarker.authorize = true; //hide authentication field
+        $scope.addMarker.showField = false;
+    }
 }]);

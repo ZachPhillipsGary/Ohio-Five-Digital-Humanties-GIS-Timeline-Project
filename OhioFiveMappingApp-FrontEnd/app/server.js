@@ -100,7 +100,7 @@ app.post('/add', function(req, res) {
             if (err) res.send(err);
             spreadsheet.receive(function(err, rows, info) {
       if(err) res.send(err);
-      console.log("Found rows:", rows);
+    //  console.log("Found rows:", rows);
       var rowsLength = Object.keys(rows).length;
       var rowObject = {};
       console.log(req.body.marker);
@@ -111,7 +111,7 @@ app.post('/add', function(req, res) {
                   4: String(req.body.marker.lon) || 'invalid',
                   6: String(req.body.marker.startDate) || 'invalid',
                   7: String(req.body.marker.endDate) || 'invalid',
-                  8: tagsToString(req.body.marker.tags || []),
+                  8: tagsToString(req.body.marker.tags) || [],
                   9: String(req.body.marker.format) || 'invalid'
               };
               if(req.body.marker.kind === 'layer') {
