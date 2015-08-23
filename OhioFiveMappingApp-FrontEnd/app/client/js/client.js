@@ -9,10 +9,12 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     $scope.currentMap;
     $scope.urlDates = {};
     $scope.alertBox = {};
+    //this object stores map objects not currently on screen
     $scope.hiddenVisObj = {
         layers: [],
         markers: []
     };
+    //stores google drive key and public url of current sheet
     $scope.currentlyLoadingKey = {
         url: '',
         key: ''
@@ -27,9 +29,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     Creates folder to store map layers and masterSheet
 
     */
-    $scope.addFolder = function() {
-        createPublicFolder($scope.mapName);
-    };
 
     function isObject(val) {
         if (val === null) {
@@ -61,8 +60,8 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }
         return tagsList;
     }
-
-    /*
+    
+  /*
   insertData()
   pre:
   rows -- google sheets row objects,
@@ -149,6 +148,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }
         //POST marker data and authentication keys to server
     $scope.saveMarker = function() {
+      console.log($scope.addMarker);
         $http.post('/add', {
             marker: $scope.addMarker,
             authentication: $scope.authorize.creds || {}
@@ -270,6 +270,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     $scope.addTag = function() {
         var str = String($scope.addMarker.newTag);
         $scope.addMarker.tags.push(str);
+        $scope.addMarker.tags = $scope.addMarker.tags.unique();
     };
     $scope.timelineOpasity = 0.4;
     //markers
@@ -297,7 +298,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         $location.search({
             c: centerHash,
             m: $scope.currentMap.urlKey || 'nokey',
-            o: $scope.tmOpacity || 0.4
+            o: $scope.tmOpacity || 0.4,
+            s: $scope.urlDates.start,
+            e: $scope.urlDates.end,
         });
         //update Add Point coords
         if ($scope.addMarker.latlon == true) {
@@ -622,6 +625,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             selectable: [false, false],
             editable: [false, false]
         };
+
         var options = {
             align: 'center', // left | right (String)
             autoResize: true, // false (Boolean)
@@ -683,6 +687,9 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         })
         $scope.dateRange = '';
         $scope.onRangeChange = function(period) {
+          $scope.urlDates.start = new Date(period.start);
+          $scope.urlDates.end = new Date(period.end);
+          console.log($scope.urlDates);
             $scope.dateRange = String(period.start) + ' to ' + String(period.end);
         }
         $scope.onSelect = function(items) {
@@ -733,11 +740,11 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     if ((mapPaths.hasOwnProperty('m')) && (mapPaths.m != 'nokey')) {
         console.log('LOADING', mapPaths.m);
         //set intital date range
-        if (mapPaths.hasOwnProperty('st')) {
-            $scope.urlDates.start = new Date(mapPaths.st);
+        if (mapPaths.hasOwnProperty('s')) {
+            $scope.urlDates.start = new Date(String(mapPaths.s));
         }
-        if (mapPaths.hasOwnProperty('et')) {
-            $scope.urlDates.end = new Date(mapPaths.et);
+        if (mapPaths.hasOwnProperty('e')) {
+            $scope.urlDates.end = new Date(String(mapPaths.e));
         }
         if (mapPaths.m.length > 1) {
             $scope.addLayer(mapPaths.m);

@@ -132,8 +132,9 @@
                                     <div class="panel-body">
                                         <p>Start:
                                           <datepicker>
-                                            <input type="date" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required /></datepicker> End:
-                                                <datepicker><input placeholder="yyyy-MM-ddTHH:mm:ss" required type="date" ng-model="addMarker.endDate" /></datepicker>
+                                            <input type="text" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required /></datepicker><br>
+                                            End:
+                                                <datepicker><input placeholder="yyyy-MM-ddTHH:mm:ss" required type="text" ng-model="addMarker.endDate" /></datepicker>
                                         </p>
                                     </div>
                                 </div>
@@ -176,20 +177,23 @@
                                 <div id="collapse4" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div id="uploadForm">
-                                            <div ng-show="addMarker.type == 'marker'">
+                                            <div ng-show="addMarker.kind == 'marker'">
                                                 Replace the default marker icon with a design of your own. Select an existing image file from your Google Drive account or upload a new one using the dropdown below.
                                             </div>
-                                            <div ng-show="addMarker.type == 'marker'">
-                                                Select a layer format using the dropdown and upload the file to your Google Drive account using the dropdown below.
+                                            <div ng-show="addMarker.kind == 'layer'">
+                                                Select a layer format using the dropdown and upload the file to your Google Drive account using the dropdown below. If you don't wish to use map layer and instead just want a generic world map, check the box below<hr>
+                                                Use Open Street Maps?  <input type="checkbox" ng-model="addMarker.osm.use" />
 
                                             </div>
+
                                             <div id="uploadFile">
+                                              <hr>
+
                                                 Upload or add a link to a KML, <a href="http://geojson.io/#map=2/20.0/0.0">geoJSON  </a>, or topoJSON file you wish to add to the map using the form below.
-                                                <hr>
 
                                                 <div class="form-group">
                                                     <label class="control-label">Upload File </label>
-                                                    <div class="input-group">
+                                                    <div  class="input-group">
                                                         <span class="input-group-addon"><div  class="btn-group">
                                                           <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                             {{addMarker.format}}
@@ -231,7 +235,7 @@
                         {{addMarker.format}}
                         <span class="caret"></span>
                       </a>
-                                                        <ul  ng-show="addMarker.kind == 'layer'" class="dropdown-menu">
+                                                        <ul  class="dropdown-menu">
                                                             <li>
                                                                 <input type="text" ng-model="addMarker.format" />
                                                             </li>
@@ -297,7 +301,7 @@
                     <br/>
                     <!-- data selector -->
                     <isteven-multi-select selection-mode="single" input-model="googleData.sheets" on-item-click="addLayer( data )" output-model="selectedData" button-label="fileName" item-label="fileName" tick-property="use" data-toggle="dropdown">
-                    </isteven-multi-select>
+                    </isteven-multi-select><br>
                     <h4>Create Spreadsheet</h4> To save a copy of the timemap template to your Google Drive, simply cick the save button below and select a location for the file. Next, open the file using Google Drive and <a href="https://support.google.com/docs/answer/37579?hl=en">publish it to the internet</a>. Once you've published the sheet, you'll be able to load it using the drop down menu above.
 
                     <div class="paddingZone">Map Name:
@@ -368,20 +372,20 @@
         <div ng-show='filters.length > 0' id="filtersComponent">
             <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="name" item-label="name" tick-property="ticked" on-close="filterData()" data-toggle="dropdown">
             </isteven-multi-select>
-          <!--  <ol>
+           <ol>
             <li ng-repeat="item in olLayers">{{item.dataType}}"{{item.dataURL}}</li>
             <li ng-repeat="item in olMarkers">{{item.style}} {{item.name}}</li>
-          </ol> -->
+          </ol>
         </div>
-        <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}" customLayer  custom-layers="false" -->
-        <openlayers defaults="olDefaults" ol-center="wooster" width="100%" height="100vh" >
+        <!-- openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"   custom-layers="false" -->
+        <openlayers defaults="olDefaults" ol-center="wooster" width="100%" height="100vh" customLayer="true">
             <!-- load all data layers into map -->
             <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
             <!-- load all data markers into map -->
             <ol-marker ng-repeat="item in olMarkers" ol-style="item.style" message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
             <!-- dummy new marker -->
             <ol-marker ng-if="addMarker.create && addMarker.kind=='marker'" ol-marker-properties="addMarker"></ol-marker>
-            <ol-layer ng-if="addMarker.create && addMarker.kind=='layer'" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"> ></ol-layer>
+            <ol-layer ng-if="addMarker.create && addMarker.kind=='layer'" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
         </openlayers>
     </div>
     <!-- vis-timeline -->
