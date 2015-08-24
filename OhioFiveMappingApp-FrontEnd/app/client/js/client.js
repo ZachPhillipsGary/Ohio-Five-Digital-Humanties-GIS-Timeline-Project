@@ -60,7 +60,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }
         return tagsList;
     }
-    
+
   /*
   insertData()
   pre:
@@ -89,7 +89,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
                         start: new Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'startDate'),
                         end: new Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'endDate'),
                         polyGroup: currentRow.gsx$format.$t || 'none' // not in a polygon, do not group
-
                     };
                     //push tags to set
                     for (var l = 0; l < dataItem.tags.length; l++) {
@@ -110,7 +109,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
                         start: new Date(currentRow.gsx$startdate.$t) || invalidRow(i, 'Could not find required field: startDate'),
                         end: new Date(currentRow.gsx$enddate.$t) || invalidRow(i, 'Could not find required field: endDate'),
                         format: currentRow.gsx$format.$t || invalidRow(i, 'Could not find required field: format')
-
                     };
                     console.log(dataItem);
                     for (var l = 0; l < dataItem.tags.length; l++) {
@@ -162,7 +160,6 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }, function(response) {
             console.log(response);
             // called asynchronously if an error occurs
-            // or server returns response with an error status.
         });
     }
     $scope.resetMarkermodel = function() {
@@ -595,7 +592,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     };
 
     $scope.initTimeline = function() {
-        angular.extend($scope, {
+        /*angular.extend($scope, {
             olDefaults: {
                 layer: {
                     url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
@@ -609,7 +606,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
                     }
                 }
             }
-        });
+        });*/
         $scope.logs = {};
         $scope.defaults = {
             orientation: ['top', 'bottom'],
