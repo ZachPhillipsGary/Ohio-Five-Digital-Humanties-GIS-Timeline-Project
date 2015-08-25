@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <script src="http://cdn.rightjs.org/right-2.3.0.js"></script>
+    <script src="./js/resize.js"></script>
+    <script src="./js/arrayincludes.js"></script>
+    <link rel="stylesheet" href="./bower_components/angular-multi-select/isteven-multi-select.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://code.angularjs.org/1.3.15/angular-cookies.min.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <link rel="stylesheet" href="http://openlayers.org/en/v3.6.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="./css/style.css" type="text/css">
+    <link rel="stylesheet" href="./css/bootstrap.css" type="text/css">
+    <script src="http://openlayers.org/en/v3.6.0/build/ol.js" type="text/javascript"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="./bower_components/openlayers3/build/ol.js"></script>
+    <script src="./bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="./dist/angular-openlayers-directive.js"></script>
+    <script src="./bower_components/angular-multi-select/isteven-multi-select.js"></script>
+    <script src="./bower_components/moment/min/moment.min.js"></script>
+    <script src="./bower_components/vis/dist/vis.min.js"></script>
+    <script src="./bower_components/angular-visjs/angular-vis.js"></script>
+    <script src='./bower_components/angular-route/angular-route.min.js'></script>
+    <script src='./bower_components/angular-bootstrap-colorpicker/js/bootstrap-colorpicker-module.min.js'></script>
+    <link rel="stylesheet" href="./bower_components/angular-bootstrap-colorpicker/css/colorpicker.min.css" />
+    <link rel="stylesheet" href="./bower_components/openlayers3/build/ol.css" />
+    <link rel="stylesheet" href="../bower_components/openlayers3/build/ol.css" />
+    <link rel="stylesheet" href="../dist/angular-openlayers-directive.css" />
+    <script src='./js/app.js'></script>
+    <script src='./js/client.js'></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/textAngular/1.4.3/dist/textAngular.min.js"></script>
+    <script type="text/javascript" src="./js/auth.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <link href="./bower_components/angularjs-datepicker/src/css/angular-datepicker.css" rel="stylesheet" type="text/css" />
+
+    <title> Beta Release Candidate </title>
+</head>
+
+<body ng-app="mapApp">
+    <div id='mainCtrl' ng-controller="mainCtrl">
+      <script src="./bower_components/angularjs-datepicker/src/js/angular-datepicker.js"></script>
+
+        <!-- Alert Box-->
+        <div ng-show="alertBox.view" ng-click="alertBox.view=false" class="alert alert-danger">
+            {{alertBox.msg}} <strong><button class="btn">X</button></strong>
+        </div>
+        <!-- Add Marker Form-->
+        <div id="markerMaker" style="position:fixed; z-index:999; right:0px; top:5px;" ng-show="addMarker.create" class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Add Data</h3>
+
+            </div>
+            <div class="panel-body">
+                <div ng-show="!addMarker.select==true && addMarker.authorize==true" class="list-group">
+                    <a ng-click="addMarker.select=true;addMarker.kind='marker';" class="list-group-item">
+                        <h4 class="list-group-item-heading">Add Marker</h4>
+                        <p class="list-group-item-text">Markers are used to represent single points of data on the map.</p>
+                    </a>
+                    <a ng-click="addMarker.select=true;addMarker.kind='layer';" class="list-group-item">
+                        <h4 class="list-group-item-heading">Add Layer</h4>
+                        <p class="list-group-item-text">Layers allow you to include KML, geoJSON or data from Open Street Map on your map</p>
+                    </a>
+                    <a ng-click="addMarker.select=true;addMarker.kind='map';" class="list-group-item">
+                        <h4 class="list-group-item-heading">Add Map</h4>
+                        <p class="list-group-item-text">Add another timemap from your Google Drive account to this timemap.</p>
+                    </a>
+                </div>
+                <div id="addMarker_auth" ng-show="!addMarker.authorize==true">
+                    <a href="{{authorize.url}}" target="_blank" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
+                    <br> Insert the authentication code from Google here:
+                    <input type="input" style="width: 100px;" ng-model="authorize.key" />
+                    <button ng-click="authorizeUser()" class="btn btn-primary btn-xs">Next</button>
+                    {{authorize.msg}}
+                </div>
+                <div ng-show="addMarker.select==true && addMarker.authorize==true">
+                    <div class="container">
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Position</a>
+
+            </h4>
+                                </div>
+                                <div id="collapse1" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div ng-show="addMarker.geoCode==false && addMarker.latlon==false && addMarker.select==true">
+                                            <button ng-click="addMarker.geoCode=true;" class="btn btn-info">Get position by address</button>
+                                            <button ng-click="addMarker.latlon=true;" class="btn btn-info">Get position from map</button>
+                                            <button ng-show="addMarker.kind='layer'" ng-click="addMarker.latlon=false;addMarker.lat =0;addMarker.lon=0;" class="btn btn-info">Place layer on map center</button>
+
+                                        </div>
+                                    </div>
+                                    <div id="geoCode" ng-show="addMarker.geoCode"> Address
+                                        <input placeholder="1189 Beall Avenue, Wooster, OH 44691" type="input" style="width: 300px;" ng-model="addMarker.address" />
+                                        <div style="display:none;" Upload Layer<a href="#">Geocoding Key</a>
+                                            <input type="input" style="width: 300px;" ng-model="addMarker.geoCodekey" />
+                                        </div>
+                                        <button class="btn btn-pimary btn-xs" ng-click="geoCode()">get coordinates from address</button>
+                                        <hr> Results:
+                                        <ul class="scrollBox">
+                                            <li ng-repeat="item in addMarker.geoCoderesults">
+                                                <button ng-click="selectGeoCodeItem(item)" class="btn btn-link">{{item.formatted}}</button>
+                                            </li>
+                                        </ul>
+                                        <hr>
+                                    </div>
+                                    <div id='latlng' ng-show="addMarker.latlon">
+                                        Message:
+                                        <input type="input" style="width: 300px;" ng-model="addMarker.label.message" />
+                                        <p>Lat:
+                                            <input type="number" ng-model="addMarker.lat" />, Lon:
+                                            <input type="number" ng-model="addMarker.lon" />
+                                        </p>
+                                        <input type="checkbox" ng-model="addMarker.label.show" /> Label show
+                                        <input type="checkbox" ng-model="addMarker.label.showOnMouseOver" /> Label show on marker mouse over
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Time and Date</a>
+            </h4>
+                                </div>
+                                <div id="collapse2" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <p>Start:
+                                          <datepicker>
+                                            <input type="text" placeholder="yyyy-MM-ddTHH:mm:ss" ng-model="addMarker.startDate" required /></datepicker><br>
+                                            End:
+                                                <datepicker><input placeholder="yyyy-MM-ddTHH:mm:ss" required type="text" ng-model="addMarker.endDate" /></datepicker>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Groups & Tags</a>
+            </h4>
+                                </div>
+                                <div id="collapse3" class="panel-collapse collapse">
+                                    <div class="panel-body"> Group
+                                        <input type="text" ng-model="addMarker.group" />
+                                        <hr>Tags:
+                                        <ul class="scrollBox">
+                                            <li ng-repeat="tag in addMarker.tags">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                        {{tag}}
+                                                        <span class="caret"></span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                        <li><button ng-click="addMarker.tags = [];">Delete</button></li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                        <hr>
+                                        <input id="newTag" placeholder="insert tag here" ng-model="addMarker.newTag" type="input" style="width: 100px;" />
+                                        <button ng-click="addTag()" class="btn btn-primary btn-xs">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">Colors and Images</a>
+            </h4>
+                                </div>
+                                <div id="collapse4" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <div id="uploadForm">
+                                            <div ng-show="addMarker.kind == 'marker'">
+                                                Replace the default marker icon with a design of your own. Select an existing image file from your Google Drive account or upload a new one using the dropdown below.
+                                            </div>
+                                            <div ng-show="addMarker.kind == 'layer'">
+                                                Select a layer format using the dropdown and upload the file to your Google Drive account using the dropdown below. If you don't wish to use map layer and instead just want a generic world map, check the box below<hr>
+                                                Use Open Street Maps?  <input type="checkbox" ng-model="addMarker.osm.use" />
+
+                                            </div>
+
+                                            <div id="uploadFile">
+                                              <hr>
+
+                                                Upload or add a link to a KML, <a href="http://geojson.io/#map=2/20.0/0.0">geoJSON  </a>, or topoJSON file you wish to add to the map using the form below.
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Upload File </label>
+                                                    <div  class="input-group">
+                                                        <span class="input-group-addon"><div  class="btn-group">
+                                                          <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            {{addMarker.format}}
+                            <span class="caret"></span>
+                                                        </a>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <input type="text" placeholder="insert custom type here" ng-model="addMarker.format" />
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='TileJSON'">TileJSON</button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='geoJSON'">GeoJSON</button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='KML'">KML</button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='topoJSON'">topoJSON</button>
+                                                            </li>
+                                                            <li><a class="btn btn-link" href="//github.com/ZachPhillipsGary/Ohio-Five-Digital-Humanties-GIS-Timeline-Project/wiki/Getting-Started#adding-layers-to-a-map">Help</a>
+                                                            </li>
+
+                                                        </ul>
+                                                    </div>
+                                                    </span>
+                                                    <input type="file" id="uploaderField" class="form-control">
+                                                    <span class="input-group-btn">
+      <button class="btn btn-primary" onClick="saveLayerFile()" type="button">Save</button>
+    </span>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Load layer by URL </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-addon"></span>
+                                                    <div class="btn-group"><a href="#" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        {{addMarker.format}}
+                        <span class="caret"></span>
+                      </a>
+                                                        <ul  class="dropdown-menu">
+                                                            <li>
+                                                                <input type="text" ng-model="addMarker.format" />
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='TileJSON'">TileJSON</button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='geoJSON'">GeoJSON</button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='KML'">KML</button>
+                                                            </li>
+                                                            <li>
+                                                                <button class="btn btn-link" ng-click="addMarker.format='topoJSON'">topoJSON</button>
+                                                            </li>
+                                                            <li><a class="btn btn-link" href="//github.com/ZachPhillipsGary/Ohio-Five-Digital-Humanties-GIS-Timeline-Project/wiki/Getting-Started#adding-layers-to-a-map">Help</a>
+                                                            </li>
+
+                                                        </ul>
+                                                    </div>
+
+                                                    <input type="text" id="url" ng-model="addMarker.url">
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button ng-click="saveMarker()" class="btn btn-success" disable>Save</button> <a href="#" ng-click="addMarker.create=false;addMarker.geoCode=false;addMarker.latlon=false;" class="btn btn-danger">Quit</a> <a href="#" ng-click="resetMarkermodel()" class="btn btn-warning">Reset</a>
+                <pre ng-show="addMarker.viewSource" ng-bind="addMarker | json"></pre> </div>
+        </div>
+    </div>
+    <!-- Control Panel Modal -->
+    <div id="adminCtrl" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Admin</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="authorize-div" style=" display: none">
+                        <div class="alert alert-dismissible alert-info">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            <h4>Ready to create your own Timeline?</h4>
+                            <p>Simply login to <a href="https://drive.google.com" class="alert-link">Google Drive</a> and select a <a class="alert-link" href="https://docs.google.com/spreadsheets/d/1j9Z3bmaoCNd3DC1Vju2xCLsyYJW_SPiSOWBrYgt0F6o/edit?usp=sharing">correctly formatted spreadsheet</a> from the dropdown below to begin!</p>
+                        </div>
+                        <!--Button for the user to click to initiate auth sequence -->
+                        <button id="authorize-button" onclick="handleAuthClick(event)" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</button>
+                    </div>
+                    <div id="loaderAnimation" align="center"><i class="fa fa-spinner fa-pulse fa-3x"></i>
+                        <br>Loading</div>
+                </div>
+                <div id="adminCtrlbox" style="display:none;">
+                    <h4>Load Spreadsheet</h4>
+                    <span>Select a Spreadsheet from your Google Drive account to load into onto the map with the drop down below.</span>
+                    <br/>
+                    <!-- data selector -->
+                    <isteven-multi-select selection-mode="single" input-model="googleData.sheets" on-item-click="addLayer( data )" output-model="selectedData" button-label="fileName" item-label="fileName" tick-property="use" data-toggle="dropdown">
+                    </isteven-multi-select><br>
+                    <h4>Create Spreadsheet</h4> To save a copy of the timemap template to your Google Drive, simply cick the save button below and select a location for the file. Next, open the file using Google Drive and <a href="https://support.google.com/docs/answer/37579?hl=en">publish it to the internet</a>. Once you've published the sheet, you'll be able to load it using the drop down menu above.
+
+                    <div class="paddingZone">Map Name:
+                        <input type="text" ng-model="newMapName" />
+
+                        <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="newMapName" data-sitename="OhioFiveTimeMapApp">
+                        </div>
+                    </div>
+                    <pre style="display:none" id="output"></pre> Timeline Opacity
+                    <input type="number" ng-model="tmOpacity" min='1' max='10' ng-change="updateTimeline()" />%
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Share</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- end admin zone -->
+    <!-- help modal -->
+    <div id="help" class="modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Oops!</h4>
+                </div>
+                <div class="modal-body">
+                    <p>It looks like the Sheet you attempted to open has not been published yet. For your convenience, we've already opened the file you attempted to open in the tab below. Simply follow the steps on the screen to publish the file and then <a ng-click="loadGoogleMapsData(currentlyLoadingKey.key)" data-dismiss="modal" class="btn btn-primary btn-xs">reload the file</a> </p>
+                    <b>How to publish a Drive Document</b>
+                    <ol>
+                        <li>Go to the File menu.</li>
+                        <li>Select Publish to the web.</li>
+                        <li>Click Publish</li>
+                        <a ng-click="loadGoogleMapsData(currentlyLoadingKey.key)" data-dismiss="modal" class="btn btn-primary btn-xs">reload the file</a>
+                    </ol>
+                    <iframe width="500px" width="100%" ng-src="{{currentlyLoadingKey.url}}"></iframe>
+                    <hr><a href="{{currentlyLoadingKey.url}}">Direct link</a> {{currentlyLoadingKey.url}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end help modal -->
+    <!-- nav bar -->
+    <div class="btn-toolbar">
+        <div class="btn-group btn-group-justified">
+            <a href="#" style="display:none" class="btn btn-default" disabled><i class="fa fa-arrow-left"></i></a>
+            <div class="btn-group">
+                <a href="#" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                    <span class="caret"></span> {{dateRange}}
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" data-toggle="modal" data-target="#adminCtrl">Load TimeMap</a>
+                    </li>
+                    <li><a ng-click="addMarker.create=true">Add Data to TimeMap</a>
+                    </li>
+                    <li><a ng-click="addLayer.create=true">Help</a>
+                    </li>
+                </ul>
+            </div>
+            <a href="#" style="display:none" class="btn btn-default" disabled><i class="fa fa-arrow-right"></i></a>
+        </div>
+        <!-- filter selector -->
+        <div ng-show='filters.length > 0' id="filtersComponent">
+            <isteven-multi-select input-model="filters" output-model="selectedFilters" button-label="name" item-label="name" tick-property="ticked" on-close="filterData()" data-toggle="dropdown">
+            </isteven-multi-select>
+            <!-- <ol>
+            <li ng-repeat="item in olLayers">{{item.dataType}}"{{item.dataURL}}</li>
+            <li ng-repeat="item in olMarkers">{{item.style}} {{item.name}}</li>
+          </ol> -->
+        </div>
+        <!-- defaults="olDefaults" ol-style="item.style" openlayers map lat="{{ initState.lat }}"  zoom="{ initState.zoom }}" lon="{ initState.log }}"   custom-layers="false" -->
+        <openlayers  ol-center="wooster" width="100%" height="100vh" >
+            <!-- load all data layers into map -->
+            <ol-layer ng-repeat="item in olLayers" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>
+            <!-- load all data markers into map -->
+            <ol-marker ng-repeat="item in olMarkers"  message="{{item.name}}" lat="item.lat" lon="item.lon"></ol-marker>
+            <!-- dummy new marker
+            <ol-marker ng-if="addMarker.create && addMarker.kind=='marker'" ol-marker-properties="addMarker"></ol-marker>
+            <ol-layer ng-if="addMarker.create && addMarker.kind=='layer'" source-type="{{item.dataType}}" source-url="{{item.dataURL}}"></ol-layer>-->
+        </openlayers>
+    </div>
+    <!-- vis-timeline -->
+    <div id="timelineContainer">
+        <vis-timeline data="data" width="100%" options="options" events="events"></vis-timeline>
+    </div>
+    <!-- initalize resizeable element -->
+    <script>
+        var resizable = new Resizable('timelineContainer', {
+            direction: 'top'
+        });
+    </script>
+</body>
+
+</html>

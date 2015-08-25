@@ -1,0 +1,57 @@
+@font-face {
+    font-family: wooFont;
+    src: url('Wooster.ttf');
+}
+.scrollBox {
+  height:100px;
+  overflow-y: scroll; 
+}
+.vis-background {
+  display:none;
+}
+.wooster {
+    font-family: wooFont;
+    color:#000;
+}
+#adminCtrlbox {
+padding:5px;
+}
+#ex1Slider .slider-selection {
+	background: #BABABA;
+}
+.paddingZone {
+  padding:15px;
+}
+.map {
+        min-height: 100%;
+        width: 100%;
+}
+html, body {
+    		height: 100%;
+    		margin: 0;
+}
+nav {
+    position: fixed;
+    top:0px;
+    z-index:9999;
+}
+#centered {
+    padding-left: 50%;
+}
+button.close {
+ display:none;
+
+}
+#filtersComponent {
+ position: fixed;
+ top:0px;
+ left:0px;
+ z-index: 999;
+}
+#timelineContainer {
+background-color: rgba(255, 255, 255, 0.3);
+position: fixed;
+width: 100%;
+bottom:0px;
+z-index:999;
+}
