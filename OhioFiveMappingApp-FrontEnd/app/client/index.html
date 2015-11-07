@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="http://openlayers.org/en/v3.6.0/css/ol.css" type="text/css">
     <link rel="stylesheet" href="./css/style.css" type="text/css">
     <link rel="stylesheet" href="./css/bootstrap.css" type="text/css">
-    <script src="http://openlayers.org/en/v3.6.0/build/ol.js" type="text/javascript"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.js"></script>
+    <script src="//openlayers.org/en/v3.6.0/build/ol.js" type="text/javascript"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.2.0/vis.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <script src="./bower_components/openlayers3/build/ol.js"></script>
@@ -38,7 +38,7 @@
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <link href="./bower_components/angularjs-datepicker/src/css/angular-datepicker.css" rel="stylesheet" type="text/css" />
 
-    <title> Beta Release Candidate </title>
+    <title> Alpha Release Candidate </title>
 </head>
 
 <body ng-app="mapApp">
@@ -55,9 +55,33 @@
                 <h3 class="panel-title">Add Data</h3>
 
             </div>
-            <div class="panel-body">
-                <div ng-show="!addMarker.select==true && addMarker.authorize==true" class="list-group">
-                    <a ng-click="addMarker.select=true;addMarker.kind='marker';" class="list-group-item">
+            {{addMarker}}
+            <ul ng-show="addMarker.select==true && addMarker.authorize==true"  style="padding:25px;">
+<li>
+            <button ng-click="setType('marker')"; type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Add Marker (Single Point)
+</button></li><br>
+<li>
+
+       <button ng-click="setType('layer')"; type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Add Layer (Shapefile)
+</button>
+</li><br>
+<li>
+    <button ng-click="setType('map')"; type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  Add Map (prexisting timemap)
+</button>
+</li>
+</ul>
+<hr>
+    <button ng-show="!addMarker.select==true && addMarker.authorize==true"  ng-click="addMarker.select=true;"; type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+        Next
+</button>
+
+
+            <div   class="panel-body">
+                <div style="display:none" class="list-group">
+                    <a ng-click="addMarker.select=true; class="list-group-item">
                         <h4 class="list-group-item-heading">Add Marker</h4>
                         <p class="list-group-item-text">Markers are used to represent single points of data on the map.</p>
                     </a>
@@ -70,6 +94,7 @@
                         <p class="list-group-item-text">Add another timemap from your Google Drive account to this timemap.</p>
                     </a>
                 </div>
+        
                 <div id="addMarker_auth" ng-show="!addMarker.authorize==true">
                     <a href="{{authorize.url}}" target="_blank" class="btn btn-primary btn-lg"><i class="fa fa-google"></i> Sign in with Google</a>
                     <br> Insert the authentication code from Google here:
@@ -92,7 +117,7 @@
                                         <div ng-show="addMarker.geoCode==false && addMarker.latlon==false && addMarker.select==true">
                                             <button ng-click="addMarker.geoCode=true;" class="btn btn-info">Get position by address</button>
                                             <button ng-click="addMarker.latlon=true;" class="btn btn-info">Get position from map</button>
-                                            <button ng-show="addMarker.kind='layer'" ng-click="addMarker.latlon=false;addMarker.lat =0;addMarker.lon=0;" class="btn btn-info">Place layer on map center</button>
+                                            <button ng-show="addMarker.kind=='layer'" ng-click="addMarker.latlon=false;addMarker.lat =0;addMarker.lon=0;" class="btn btn-info">Place layer on map center</button>
 
                                         </div>
                                     </div>
@@ -177,7 +202,7 @@
                                 <div id="collapse4" class="panel-collapse collapse">
                                     <div class="panel-body">
                                         <div id="uploadForm">
-                                            <div ng-show="addMarker.kind == 'marker'">
+                                            <!--<div ng-show="addMarker.kind == 'marker'">
                                                 Replace the default marker icon with a design of your own. Select an existing image file from your Google Drive account or upload a new one using the dropdown below.
                                             </div>
                                             <div ng-show="addMarker.kind == 'layer'">
@@ -185,7 +210,7 @@
                                                 Use Open Street Maps?  <input type="checkbox" ng-model="addMarker.osm.use" />
 
                                             </div>
-
+-->
                                             <div id="uploadFile">
                                               <hr>
 
@@ -280,7 +305,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title">Admin</h4>
+                    <h4 class="modal-title">ng-TimeMap</h4>
                 </div>
                 <div class="modal-body">
                     <div id="authorize-div" style=" display: none">
@@ -295,6 +320,8 @@
                     <div id="loaderAnimation" align="center"><i class="fa fa-spinner fa-pulse fa-3x"></i>
                         <br>Loading</div>
                 </div>
+                          <div class="paddingZone">
+
                 <div id="adminCtrlbox" style="display:none;">
                     <h4>Load Spreadsheet</h4>
                     <span>Select a Spreadsheet from your Google Drive account to load into onto the map with the drop down below.</span>
@@ -302,13 +329,19 @@
                     <!-- data selector -->
                     <isteven-multi-select selection-mode="single" input-model="googleData.sheets" on-item-click="addLayer( data )" output-model="selectedData" button-label="fileName" item-label="fileName" tick-property="use" data-toggle="dropdown">
                     </isteven-multi-select><br>
+                    <!--
                     <h4>Create Spreadsheet</h4> To save a copy of the timemap template to your Google Drive, simply cick the save button below and select a location for the file. Next, open the file using Google Drive and <a href="https://support.google.com/docs/answer/37579?hl=en">publish it to the internet</a>. Once you've published the sheet, you'll be able to load it using the drop down menu above.
+-->
+              <h4>Create Map</h4>
+                    <span>Selecting this option will prompt you to create a new Google sheet in your Google Drive account</span>
+                    <br/>
+            <a href="http://drive.google.com" class="btn btn-primary">Create a new map</a>
+            <a href="https://docs.google.com/spreadsheets/d/1Lr-ahw2EjG5VQETUG3rQXEzyO4F45ht4Inyxz2uaVH4/edit?usp=sharing">Template</a>
 
-                    <div class="paddingZone">Map Name:
-                        <input type="text" ng-model="newMapName" />
-
-                        <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="newMapName" data-sitename="OhioFiveTimeMapApp">
-                        </div>
+                        <!--<input type="text" ng-model="newMapName" />-->
+<!--
+                        <div class="g-savetodrive" data-src="./templates/model.csv" data-filename="newMapName" data-sitename="OhioFiveTimeMapApp"> 
+                        </div>-->
                     </div>
                     <pre style="display:none" id="output"></pre> Timeline Opacity
                     <input type="number" ng-model="tmOpacity" min='1' max='10' ng-change="updateTimeline()" />%
@@ -362,7 +395,7 @@
                     </li>
                     <li><a ng-click="addMarker.create=true">Add Data to TimeMap</a>
                     </li>
-                    <li><a ng-click="addLayer.create=true">Help</a>
+                    <li>Help
                     </li>
                 </ul>
             </div>

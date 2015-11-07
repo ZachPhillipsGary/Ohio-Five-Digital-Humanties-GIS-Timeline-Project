@@ -5,6 +5,10 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         $scope.alertBox.msg = "           Row " + row + ", Column " + col + ": contains errors. Please correct and try again.";
         $scope.alertBox.view = true;
     }
+    $scope.setType = function(type) {
+        $scope.addMarker.kind = type || '';
+        $scope.$apply(); //update map        
+    }
     $scope.timeBoxValue = ''; // set time on click
     $scope.currentMap;
     $scope.urlDates = {};
@@ -22,7 +26,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
     /* reportError () -- outputs error message to user when something fails */
     function reportError(msg) {
         $scope.alertBox.view = true;
-        $scope.alertBox.msg = msg
+        $scope.alertBox.msg = msg;
     }
     $scope.iframeStr = ''; // stores map title for addFolder
     /*
