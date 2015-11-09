@@ -157,7 +157,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
         }).
         then(function(response) {
             console.log(response);
-            $scope.addMarker.create = false;
+            $scope.addMarker.cresaveLayerFileate = false;
             alert('Success!');
             // this callback will be called asynchronously
             // when the response is available
@@ -418,7 +418,7 @@ mapApp.controller('mainCtrl', ['VisDataSet', '$scope', '$http', '$location', '$c
             console.log(data);
         });
         //now get content. Use afeld as proxy for cross domain issues on some browsers
-        var urlString = "https://jsonp.afeld.me/?url=http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
+        var urlString = "http://spreadsheets.google.com/feeds/list/" + url + "/od6/public/values?alt=json";
         $http.get(urlString).success(function(data) {
             var rows = data.feed.entry; //rows from dataset
             /*
